@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chem Regents Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f7f8; --paper-2:#ffffff; --grid:#dfe7ea;
+    --ink:#16302a; --ink-soft:#4a625c; --line:#d6e0e0;
+    --primary:#0f9d6b; --primary-dark:#0a7a51;
+    --correct:#10b981; --correct-bg:#e7f8f1;
+    --wrong:#ef4444; --wrong-bg:#fdecec;
+    --amber:#e08a00; --amber-bg:#fdf3e3;
+    --shadow:0 1px 2px rgba(16,48,42,.06), 0 6px 20px rgba(16,48,42,.07);
+    --display:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--body);color:var(--ink);background-color:var(--paper);
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:26px 26px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 18px 80px}
+
+  header{padding:32px 0 18px}
+  .brandrow{display:flex;align-items:center;gap:14px}
+  .flask{flex:none;width:44px;height:44px}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(25px,5vw,38px);letter-spacing:-.02em;margin:0;line-height:1.02}
+  .sub{margin:11px 0 0;color:var(--ink-soft);font-size:15px;max-width:60ch}
+  .sub b{color:var(--ink);font-weight:600}
+
+  .tabs{display:flex;gap:8px;margin:22px 0 6px;position:sticky;top:0;z-index:40;padding:12px 0;
+    background:linear-gradient(var(--paper) 70%,rgba(244,247,248,0))}
+  .tab{font-family:var(--display);font-weight:600;font-size:15px;border:1px solid var(--line);
+    background:var(--paper-2);color:var(--ink-soft);padding:11px 18px;border-radius:12px;cursor:pointer;
+    transition:.15s;display:flex;align-items:center;gap:9px}
+  .tab .pip{font-family:var(--mono);font-size:11.5px;background:#eef3f3;color:var(--ink-soft);padding:2px 7px;border-radius:20px}
+  .tab[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tab[aria-selected="true"] .pip{background:rgba(255,255,255,.16);color:#fff}
+  .tab:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* ---------- Deck picker ---------- */
+  .pickhint{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-soft);margin:10px 0 12px}
+  .deckpick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+  .chip{font-family:var(--body);font-weight:600;font-size:13.5px;border:1px solid var(--line);
+    background:var(--paper-2);color:var(--ink);padding:9px 14px;border-radius:30px;cursor:pointer;
+    transition:.14s;display:flex;align-items:center;gap:8px}
+  .chip .dot{width:9px;height:9px;border-radius:50%;background:var(--h,#0f9d6b)}
+  .chip .num{font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+  .chip:hover{border-color:var(--h,var(--primary))}
+  .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip[aria-pressed="true"] .num{color:rgba(255,255,255,.7)}
+  .chip:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+  /* ---------- Study area ---------- */
+  .study{margin-top:22px}
+  .studytop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .counts{font-size:13.5px;color:var(--ink-soft);font-family:var(--mono)}
+  .counts b.k{color:var(--primary-dark)} .counts b.l{color:var(--amber)}
+  .studytools{display:flex;gap:8px}
+  .toolbtn{font-family:var(--body);font-weight:600;font-size:13px;border:1px solid var(--line);
+    background:var(--paper-2);color:var(--ink-soft);padding:8px 13px;border-radius:9px;cursor:pointer;transition:.14s;
+    display:flex;align-items:center;gap:7px}
+  .toolbtn:hover{color:var(--ink);border-color:var(--ink-soft)}
+  .toolbtn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .toolbtn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+
+  .progress{height:6px;background:#e6eded;border-radius:6px;overflow:hidden;margin-bottom:18px}
+  .progress > div{height:100%;width:0;background:var(--h,var(--primary));border-radius:6px;transition:width .3s}
+
+  .stage{display:flex;justify-content:center}
+  .bigcard{perspective:1700px;width:100%;max-width:730px;min-height:330px;display:block;
+    background:none;border:0;padding:0;cursor:pointer;font:inherit;color:inherit}
+  .bigcard:focus-visible{outline:3px solid var(--h,var(--primary));outline-offset:4px;border-radius:24px}
+  .bcinner{position:relative;width:100%;min-height:330px;transition:transform .55s;transform-style:preserve-3d}
+  .bigcard.flipped .bcinner{transform:rotateY(180deg)}
+  .bcface{position:absolute;inset:0;backface-visibility:hidden;border-radius:22px;border:1px solid var(--line);
+    background:var(--paper-2);box-shadow:var(--shadow);display:flex;flex-direction:column;padding:24px 26px;overflow:auto}
+  .bcfront::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:var(--h,var(--primary));border-radius:22px 22px 0 0}
+  .bcback{transform:rotateY(180deg);background:#fbfdfc;border-color:var(--h,var(--primary))}
+  .bcback::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:var(--h,var(--primary));border-radius:22px 22px 0 0}
+  .bctop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+  .bclabel{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--h,var(--primary))}
+  .bctopic{font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+  .bcmid{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px 4px}
+  .bcfront .bcmid{font-family:var(--display);font-weight:600;font-size:clamp(20px,3.6vw,27px);line-height:1.32;letter-spacing:-.01em}
+  .bcback .bcmid{font-size:clamp(15.5px,2.6vw,18.5px);line-height:1.55;color:var(--ink)}
+  .bcback .bcmid b{color:var(--primary-dark)}
+  .bchint{text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--ink-soft)}
+
+  /* summary */
+  .summary{width:100%;max-width:730px;min-height:330px;border-radius:22px;border:1px solid var(--line);
+    background:var(--paper-2);box-shadow:var(--shadow);padding:34px 28px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center}
+  .summary h2{font-family:var(--display);font-weight:700;font-size:26px;margin:0 0 6px}
+  .summary p{color:var(--ink-soft);margin:0 0 22px;font-size:15px}
+  .sumstats{display:flex;gap:30px;margin-bottom:26px}
+  .sumstat{display:flex;flex-direction:column;gap:2px}
+  .sumstat .v{font-family:var(--display);font-weight:700;font-size:38px;line-height:1}
+  .sumstat .v.k{color:var(--primary-dark)} .sumstat .v.l{color:var(--amber)}
+  .sumstat .lab{font-size:12px;color:var(--ink-soft);font-family:var(--mono)}
+  .sumbtns{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px}
+
+  /* nav row */
+  .navrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;max-width:730px;
+    margin-left:auto;margin-right:auto}
+  .mark{font-family:var(--display);font-weight:600;font-size:14.5px;border-radius:12px;padding:13px 18px;cursor:pointer;
+    transition:.14s;border:1.5px solid;display:flex;align-items:center;gap:8px}
+  .mark.learn{color:var(--amber);border-color:var(--amber);background:var(--amber-bg)}
+  .mark.learn:hover{background:var(--amber);color:#fff}
+  .mark.know{color:var(--primary-dark);border-color:var(--primary);background:var(--correct-bg)}
+  .mark.know:hover{background:var(--primary);color:#fff}
+  .mark:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .center{display:flex;align-items:center;gap:14px}
+  .arrow{font-family:var(--display);font-size:22px;line-height:1;border:1px solid var(--line);background:var(--paper-2);
+    color:var(--ink);width:46px;height:46px;border-radius:50%;cursor:pointer;transition:.14s;display:grid;place-items:center}
+  .arrow:hover:not(:disabled){border-color:var(--ink);transform:translateY(-1px)}
+  .arrow:disabled{opacity:.35;cursor:default}
+  .arrow:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  #counter{font-family:var(--mono);font-size:13.5px;color:var(--ink-soft);min-width:64px;text-align:center}
+  .kbd{text-align:center;font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:16px}
+  @media(max-width:560px){
+    .navrow{flex-wrap:wrap;justify-content:center}
+    .mark{order:2;flex:1} .center{order:1;width:100%;justify-content:center;margin-bottom:6px}
+    .sumstats{gap:22px}
+  }
+
+  /* ---------- Quiz ---------- */
+  .quizintro{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+    margin:6px 0 8px;box-shadow:var(--shadow);font-size:14.5px;color:var(--ink-soft)}
+  .quizintro b{color:var(--ink)}
+  #scorebar{position:sticky;top:64px;z-index:30;margin:14px 0 22px;border-radius:14px;padding:16px 20px;
+    background:var(--ink);color:#fff;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow);flex-wrap:wrap}
+  #scorebar.hidden{display:none}
+  #scorebar .big{font-family:var(--display);font-weight:700;font-size:30px;line-height:1}
+  #scorebar .pct{font-family:var(--mono);font-size:13px;opacity:.85}
+  #scorebar .msg{font-size:14px;max-width:46ch}
+  .q{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px;
+    box-shadow:var(--shadow);scroll-margin-top:120px}
+  .q .qn{display:flex;gap:11px;align-items:flex-start;margin-bottom:14px}
+  .q .num{font-family:var(--mono);font-size:12.5px;font-weight:600;color:#fff;background:var(--primary);min-width:30px;
+    height:30px;border-radius:8px;display:grid;place-items:center;flex:none;margin-top:1px}
+  .q .qtxt{font-size:15.5px;font-weight:600;line-height:1.4}
+  .q .tcat{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);
+    display:block;margin-top:4px;font-weight:500}
+  .opts{display:grid;gap:8px}
+  .opt{display:flex;align-items:flex-start;gap:11px;border:1px solid var(--line);border-radius:11px;padding:11px 13px;
+    cursor:pointer;transition:.13s;font-size:14.5px;background:#fff;position:relative}
+  .opt:hover{border-color:var(--primary);background:#f7fbf9}
+  .opt input{position:absolute;opacity:0;width:0;height:0}
+  .opt .ol{font-family:var(--mono);font-weight:600;font-size:12.5px;color:var(--primary-dark);border:1px solid var(--line);
+    border-radius:6px;min-width:24px;height:24px;display:grid;place-items:center;flex:none;background:#fff;transition:.13s}
+  .opt:has(input:checked){border-color:var(--primary);background:#eef8f3}
+  .opt:has(input:checked) .ol{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .opt:focus-within{outline:2px solid var(--primary);outline-offset:1px}
+  .q.graded .opt{cursor:default}
+  .q.graded .opt:hover{background:#fff;border-color:var(--line)}
+  .opt.is-correct{border-color:var(--correct);background:var(--correct-bg)}
+  .opt.is-correct .ol{background:var(--correct);color:#fff;border-color:var(--correct)}
+  .opt.is-wrong{border-color:var(--wrong);background:var(--wrong-bg)}
+  .opt.is-wrong .ol{background:var(--wrong);color:#fff;border-color:var(--wrong)}
+  .opt .mark2{margin-left:auto;font-family:var(--display);font-weight:700;font-size:13px;align-self:center}
+  .opt.is-correct .mark2{color:var(--correct)} .opt.is-wrong .mark2{color:var(--wrong)}
+  .why{margin-top:12px;font-size:13.5px;line-height:1.5;border-left:3px solid var(--primary);padding:9px 0 9px 13px;
+    color:var(--ink-soft);display:none}
+  .why.show{display:block} .why b{color:var(--ink)} .why .ans{color:var(--primary-dark);font-weight:600}
+  .quizbtns{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
+  .btn{font-family:var(--display);font-weight:600;font-size:15.5px;border-radius:12px;padding:14px 26px;cursor:pointer;
+    border:1px solid var(--ink);transition:.15s}
+  .btn.primary{background:var(--ink);color:#fff} .btn.primary:hover{background:#0c241e}
+  .btn.ghost{background:transparent;color:var(--ink)} .btn.ghost:hover{background:#fff}
+  .btn:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+
+  footer{margin-top:42px;border-top:1px solid var(--line);padding-top:22px;color:var(--ink-soft);font-size:13.5px}
+  footer h3{font-family:var(--display);color:var(--ink);font-size:15px;margin:0 0 10px}
+  footer ul{margin:0;padding-left:18px} footer li{margin-bottom:6px}
+  .goodluck{font-family:var(--display);font-weight:600;color:var(--ink);font-size:16px;margin-top:18px}
+
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.bcinner{transition:none}*{animation:none!important}}
+
+  /* ---------- Reference tables modal ---------- */
+  .reffab{position:fixed;right:20px;bottom:20px;z-index:60;display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--display);font-weight:600;font-size:14.5px;color:#fff;background:var(--ink);border:none;
+    border-radius:30px;padding:12px 18px;cursor:pointer;box-shadow:0 6px 22px rgba(16,48,42,.30);transition:.16s}
+  .reffab:hover{transform:translateY(-2px);background:#0c241e}
+  .reffab:focus-visible{outline:3px solid var(--primary);outline-offset:3px}
+  .reffab svg{width:18px;height:18px;color:#fff}
+  .refmodal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+  .refmodal[hidden]{display:none}
+  .refbackdrop{position:absolute;inset:0;background:rgba(14,38,32,.55)}
+  .refsheet{position:relative;width:100%;max-width:880px;height:min(90vh,780px);background:var(--paper-2);
+    border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 64px rgba(0,0,0,.4);display:flex;
+    flex-direction:column;overflow:hidden;animation:pop .2s ease}
+  .refsheet:focus{outline:none}
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+  .refbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 18px;
+    border-bottom:1px solid var(--line);background:var(--paper)}
+  .reftitle{display:flex;align-items:baseline;gap:10px;min-width:0}
+  .refcode{font-family:var(--display);font-weight:700;font-size:18px;color:var(--ink);white-space:nowrap}
+  .refname{font-size:13px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .refbar-right{display:flex;align-items:center;gap:8px;flex:none}
+  .refptbtn{display:inline-flex;align-items:center;gap:7px;font-family:var(--body);font-weight:600;font-size:13px;
+    color:#fff;background:var(--primary);border:none;border-radius:9px;padding:9px 12px;cursor:pointer;transition:.14s}
+  .refptbtn:hover{background:var(--primary-dark)}
+  .refptbtn[aria-current="true"]{background:var(--ink)}
+  .refclose{width:38px;height:38px;border-radius:9px;border:1px solid var(--line);background:var(--paper-2);
+    cursor:pointer;font-size:14px;color:var(--ink-soft);display:grid;place-items:center;transition:.14s}
+  .refclose:hover{border-color:var(--ink);color:var(--ink)}
+  .refbody{flex:1;overflow:auto;padding:22px 24px}
+  .refnav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 18px;
+    border-top:1px solid var(--line);background:var(--paper)}
+  .refarrow{font-family:var(--display);font-weight:600;font-size:14px;border:1px solid var(--line);
+    background:var(--paper-2);color:var(--ink);border-radius:10px;padding:10px 15px;cursor:pointer;transition:.14s}
+  .refarrow:hover:not(:disabled){border-color:var(--ink)}
+  .refarrow:disabled{opacity:.35;cursor:default}
+  .refmid{display:flex;align-items:center;gap:12px;min-width:0}
+  #refJump{font-family:var(--body);font-size:13px;color:var(--ink);background:var(--paper-2);border:1px solid var(--line);
+    border-radius:8px;padding:8px 10px;max-width:200px;cursor:pointer}
+  .refpage{font-family:var(--mono);font-size:12px;color:var(--ink-soft);white-space:nowrap}
+
+  .refbody .rt{width:100%;border-collapse:collapse;font-size:14px}
+  .refbody .rt th{font-family:var(--display);font-weight:600;text-align:left;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--ink-soft);border-bottom:2px solid var(--line);padding:9px 12px}
+  .refbody .rt td{padding:8px 12px;border-bottom:1px solid var(--grid);vertical-align:top}
+  .refbody .rt tr:last-child td{border-bottom:none}
+  .refbody .rt .f{font-family:var(--mono);font-weight:500}
+  .refnote{font-size:12.5px;color:var(--ink-soft);margin:16px 0 0;padding:10px 13px;background:var(--paper);
+    border-left:3px solid var(--primary);border-radius:0 8px 8px 0}
+  .refnote b{color:var(--ink)}
+  .refh{font-family:var(--display);font-weight:600;font-size:14px;margin:0 0 8px;color:var(--ink)}
+  .reftwocol{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .refsub{font-family:var(--display);font-weight:600;font-size:13px;color:var(--primary-dark);margin:0 0 8px}
+  .reflist{margin:0;padding:0;list-style:none;font-size:13px}
+  .reflist li{padding:6px 0;border-bottom:1px solid var(--grid);line-height:1.4}
+  .reflist li:last-child{border-bottom:none}
+  .reflist .f{font-family:var(--mono);font-weight:600;color:var(--ink)}
+  .refseries{font-family:var(--mono);font-size:13.5px;line-height:2.1;color:var(--ink);margin:0}
+  .refseries b{color:var(--primary-dark)}
+  .refchart{width:100%;height:auto;display:block}
+  @media(max-width:620px){.reftwocol{grid-template-columns:1fr;gap:18px}}
+
+  /* periodic table */
+  .ptdetail{display:flex;align-items:center;gap:16px;margin:0 0 16px;padding:12px 16px;border:1px solid var(--line);
+    border-radius:12px;background:var(--paper);min-height:62px}
+  .ptdetail .big{font-family:var(--display);font-weight:700;font-size:30px;color:var(--ink);min-width:46px;text-align:center}
+  .ptdetail .info{font-size:13px;color:var(--ink-soft);line-height:1.5}
+  .ptdetail .info b{color:var(--ink)}
+  .ptscroll{overflow-x:auto;padding-bottom:6px}
+  .pt{display:grid;grid-template-columns:repeat(18,minmax(34px,1fr));grid-auto-rows:1fr;gap:3px;min-width:680px}
+  .el{display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:1/1.08;border-radius:5px;
+    padding:3px 3px 2px;cursor:pointer;border:1px solid rgba(20,48,42,.10);transition:transform .1s;text-align:left}
+  .el:hover{transform:scale(1.12);z-index:3;box-shadow:0 5px 12px rgba(0,0,0,.2)}
+  .el .z{font-family:var(--mono);font-size:8px;color:var(--ink-soft);line-height:1}
+  .el .s{font-family:var(--display);font-weight:700;font-size:13.5px;line-height:1;color:var(--ink)}
+  .el .m{font-family:var(--mono);font-size:6.5px;color:var(--ink-soft);line-height:1;text-align:right;margin-top:1px}
+  .el.sel{outline:2.5px solid var(--ink);outline-offset:0;z-index:2}
+  .el.ph{cursor:default;align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#eef3f3,#eef3f3 4px,#e4ecec 4px,#e4ecec 8px);border-style:dashed;font-family:var(--mono);font-size:8px;color:var(--ink-soft)}
+  .el.ph:hover{transform:none;box-shadow:none}
+  .c-al{background:#f9dcdc}.c-ae{background:#fbe7cd}.c-tm{background:#e1ebf6}.c-pm{background:#e7eced}.c-ml{background:#e7f1d8}
+  .c-nm{background:#d4efe2}.c-hl{background:#fcecc6}.c-ng{background:#ece0f5}.c-ln{background:#e4e7fb}.c-an{background:#fae0ee}
+  .ptlegend{display:flex;flex-wrap:wrap;gap:7px 14px;margin-top:16px;font-size:11.5px;color:var(--ink-soft)}
+  .ptlegend span{display:inline-flex;align-items:center;gap:6px}
+  .ptlegend i{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid rgba(20,48,42,.1)}
+  @media(max-width:560px){
+    .reffab{right:13px;bottom:13px;padding:11px 15px;font-size:13.5px}.reffab svg{width:16px;height:16px}
+    .refbody{padding:18px 15px}.refptbtn{font-size:0;gap:0;padding:9px 11px}.refptbtn svg{width:17px;height:17px}
+    .refcode{font-size:16px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brandrow">
+      <svg class="flask" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M19 6h10M21 6v13L9.5 37.5A4 4 0 0 0 13 43.8h22a4 4 0 0 0 3.5-6.3L27 19V6"
+          stroke="#16302a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M15.5 31h17l4.2 6.6A3 3 0 0 1 34 42H14a3 3 0 0 1-2.7-4.4L15.5 31Z" fill="#0f9d6b"/>
+        <circle cx="20" cy="37" r="1.6" fill="#fff"/><circle cx="27" cy="39" r="1.2" fill="#fff"/><circle cx="24" cy="34.5" r="1" fill="#fff"/>
+      </svg>
+      <h1>Chem Regents Flashcards</h1>
+    </div>
+    <p class="sub">A full study deck for the NY <b>Physical Setting / Chemistry Regents</b> &mdash; <b id="grand">0</b> flashcards across every topic, plus a self-grading <b>30-question quiz</b>. Tap a card to flip it; sort each one into <b>Got it</b> or <b>Study again</b> as you go.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Study sections">
+    <button class="tab" role="tab" id="tab-cards" aria-controls="panel-cards" aria-selected="true" onclick="showTab('cards')">Flashcards <span class="pip" id="grand2">0</span></button>
+    <button class="tab" role="tab" id="tab-quiz" aria-controls="panel-quiz" aria-selected="false" onclick="showTab('quiz')">30-question quiz <span class="pip">MC</span></button>
+  </div>
+
+  <!-- ============ FLASHCARDS ============ -->
+  <section class="panel active" id="panel-cards" role="tabpanel" aria-labelledby="tab-cards">
+    <p class="pickhint">Choose a deck</p>
+    <div class="deckpick" id="deckpick"></div>
+
+    <div class="study">
+      <div class="studytop">
+        <div class="counts" id="counts"></div>
+        <div class="studytools">
+          <button class="toolbtn" id="shufbtn" aria-pressed="false" onclick="toggleShuffle()" title="Shuffle the deck">&#8646; Shuffle</button>
+          <button class="toolbtn" onclick="restartDeck()" title="Start this deck over">&#8634; Restart</button>
+        </div>
+      </div>
+      <div class="progress"><div id="bar"></div></div>
+
+      <div class="stage">
+        <button class="bigcard" id="bigcard" type="button" onclick="flipCard()" aria-label="Flashcard. Activate to flip.">
+          <div class="bcinner">
+            <div class="bcface bcfront">
+              <div class="bctop"><span class="bclabel" id="frontLabel">Term</span><span class="bctopic" id="frontTopic"></span></div>
+              <div class="bcmid" id="frontText"></div>
+              <div class="bchint">tap to flip</div>
+            </div>
+            <div class="bcface bcback">
+              <div class="bctop"><span class="bclabel">Answer</span><span class="bctopic" id="backTopic"></span></div>
+              <div class="bcmid" id="backText"></div>
+              <div class="bchint">tap to flip back</div>
+            </div>
+          </div>
+        </button>
+        <div class="summary" id="summary" style="display:none"></div>
+      </div>
+
+      <div class="navrow" id="navrow">
+        <button class="mark learn" onclick="markCard('learning')">&#10007; Study again</button>
+        <div class="center">
+          <button class="arrow" id="prevbtn" onclick="prevCard()" aria-label="Previous card">&#8249;</button>
+          <span id="counter">0 / 0</span>
+          <button class="arrow" id="nextbtn" onclick="nextCard()" aria-label="Next card">&#8250;</button>
+        </div>
+        <button class="mark know" onclick="markCard('known')">&#10003; Got it</button>
+      </div>
+      <p class="kbd">Keyboard: &larr; / &rarr; to move &middot; Space to flip</p>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section class="panel" id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz">
+    <div class="quizintro"><b>30 multiple-choice questions</b> covering every Regents topic. Pick an answer for each, then hit <b>Check my score</b> at the bottom for your score out of 30 and an explanation for every question.</div>
+    <div id="scorebar" class="hidden" aria-live="polite">
+      <div><span class="big" id="scorenum">0/30</span> <span class="pct" id="scorepct"></span></div>
+      <div class="msg" id="scoremsg"></div>
+    </div>
+    <div id="quiz"></div>
+    <div class="quizbtns">
+      <button class="btn primary" onclick="gradeQuiz()">Check my score</button>
+      <button class="btn ghost" onclick="resetQuiz()">Start over</button>
+    </div>
+    <footer>
+      <h3>Exam-day game plan</h3>
+      <ul>
+        <li><b>Use the Reference Tables booklet constantly.</b> Heat formulas &rarr; Table T, half-lives &rarr; Table N, polyatomic ions &rarr; Table E, solubility curves &rarr; Table G.</li>
+        <li><b>Watch units.</b> Gas-law temperatures must be in Kelvin (K = &deg;C + 273). STP is 273 K and 101.3 kPa.</li>
+        <li><b>Read fully</b> &mdash; "which is <i>not</i>" and "least" trip people up. Underline the key word.</li>
+        <li><b>Never leave a multiple-choice blank.</b> No penalty for guessing &mdash; eliminate two and pick.</li>
+        <li><b>Bring a 4-function calculator</b> and check it works the night before.</li>
+      </ul>
+      <p class="goodluck">You've got this &mdash; good luck tomorrow.</p>
+    </footer>
+  </section>
+</div>
+
+<button class="reffab" id="reffab" onclick="openRef()" aria-haspopup="dialog" aria-controls="refmodal">
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5A2.5 2.5 0 0 1 4 20.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M9 7.5h7M9 10.5h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>
+  Reference Tables
+</button>
+
+<div class="refmodal" id="refmodal" role="dialog" aria-modal="true" aria-label="Regents Reference Tables" hidden>
+  <div class="refbackdrop" onclick="closeRef()"></div>
+  <div class="refsheet" tabindex="-1">
+    <div class="refbar">
+      <div class="reftitle"><span class="refcode" id="refCode">Table A</span><span class="refname" id="refName"></span></div>
+      <div class="refbar-right">
+        <button class="refptbtn" id="refPTBtn" onclick="gotoPeriodic()" title="Jump to the Periodic Table">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" aria-hidden="true">
+            <rect x="3" y="3" width="6" height="6" rx="1" fill="currentColor" opacity=".95"/>
+            <rect x="15" y="3" width="6" height="6" rx="1" fill="currentColor" opacity=".95"/>
+            <rect x="3" y="11" width="4" height="4" rx="1" fill="currentColor" opacity=".55"/>
+            <rect x="9" y="11" width="4" height="4" rx="1" fill="currentColor" opacity=".55"/>
+            <rect x="15" y="11" width="6" height="4" rx="1" fill="currentColor" opacity=".55"/>
+          </svg>
+          Periodic Table
+        </button>
+        <button class="refclose" onclick="closeRef()" aria-label="Close reference tables">&#10005;</button>
+      </div>
+    </div>
+    <div class="refbody" id="refBody"></div>
+    <div class="refnav">
+      <button class="refarrow" id="refPrev" onclick="refStep(-1)">&#8249; Prev</button>
+      <div class="refmid">
+        <select id="refJump" aria-label="Jump to a table" onchange="refJumpTo(this.value)"></select>
+        <span class="refpage" id="refPage"></span>
+      </div>
+      <button class="refarrow" id="refNext" onclick="refStep(1)">Next &#8250;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const HUES=["#0f9d6b","#3b82f6","#8b5cf6","#14b8a6","#f59e0b","#0ea5e9","#06b6d4","#f43f5e","#84cc16","#f97316","#22c55e","#a855f7"];
+
+/* t:'q' question / 'd' term  |  f:front  b:back */
+const TOPICS=[
+ {sym:"Ma",name:"Matter & Energy",cards:[
+  {t:"d",f:"Matter",b:"Anything that has mass and takes up volume (space)."},
+  {t:"d",f:"Element",b:"A pure substance made of only one kind of atom. It cannot be broken down by chemical means."},
+  {t:"d",f:"Compound",b:"Two or more elements <b>chemically combined</b> in a fixed ratio. Can only be broken down by chemical means."},
+  {t:"d",f:"Mixture",b:"Two or more substances <b>physically combined</b> in any ratio. Separated by physical means."},
+  {t:"q",f:"Homogeneous vs. heterogeneous mixture?",b:"<b>Homogeneous</b> = uniform throughout (a solution, like salt water). <b>Heterogeneous</b> = not uniform; you can see the parts (sand + water)."},
+  {t:"q",f:"Is dissolving sugar in water physical or chemical?",b:"<b>Physical.</b> The sugar is still sugar — no new substance forms, and it can be recovered by evaporating the water."},
+  {t:"q",f:"Name some signs of a chemical change.",b:"Color change, a gas produced (bubbles/odor), a precipitate forming, and energy released or absorbed (heat or light)."},
+  {t:"d",f:"Endothermic process",b:"Absorbs heat from the surroundings. &Delta;H is <b>positive</b>; it feels cold."},
+  {t:"d",f:"Exothermic process",b:"Releases heat to the surroundings. &Delta;H is <b>negative</b>; it feels warm."},
+  {t:"q",f:"What does temperature measure?",b:"The <b>average kinetic energy</b> of the particles in a sample."},
+  {t:"q",f:"Which direction does heat flow?",b:"Always from the <b>warmer</b> object to the <b>cooler</b> object, until they reach the same temperature."},
+  {t:"q",f:"The three phases of matter?",b:"<b>Solid</b> (definite shape & volume), <b>liquid</b> (definite volume, takes the container's shape), <b>gas</b> (no definite shape or volume)."},
+  {t:"q",f:"Filtration separates a mixture based on what?",b:"Differences in <b>particle size</b> — the solid is trapped by the filter while the liquid passes through."}
+ ]},
+ {sym:"At",name:"Atomic Structure",cards:[
+  {t:"d",f:"Proton",b:"Charge <b>+1</b>, mass 1 amu, located in the <b>nucleus</b>."},
+  {t:"d",f:"Neutron",b:"Charge <b>0</b>, mass 1 amu, located in the <b>nucleus</b>."},
+  {t:"d",f:"Electron",b:"Charge <b>&minus;1</b>, almost no mass, found in shells/orbitals <b>outside</b> the nucleus."},
+  {t:"q",f:"What does the atomic number tell you?",b:"The number of <b>protons</b> — it identifies the element (and equals the electrons in a neutral atom)."},
+  {t:"q",f:"How do you find the number of neutrons?",b:"<b>Mass number &minus; atomic number.</b>"},
+  {t:"d",f:"Isotopes",b:"Atoms of the same element (same protons) with <b>different numbers of neutrons</b>, so different mass numbers."},
+  {t:"q",f:"Why isn't atomic mass a whole number?",b:"It's the <b>weighted average</b> of all naturally occurring isotopes, based on their abundance."},
+  {t:"d",f:"Valence electrons",b:"The electrons in the <b>outermost</b> shell. They determine an atom's chemical behavior."},
+  {t:"q",f:"Electron configuration of calcium (Z = 20)?",b:"<b>2-8-8-2.</b>"},
+  {t:"q",f:"Ground state vs. excited state?",b:"<b>Ground</b> = electrons in the lowest energy levels. <b>Excited</b> = an electron absorbed energy and jumped to a higher level."},
+  {t:"q",f:"How is a bright-line spectrum produced?",b:"Excited electrons fall back to lower levels, releasing energy as <b>light of specific wavelengths</b>. Each element's pattern is unique."},
+  {t:"q",f:"What did Rutherford's gold-foil experiment show?",b:"The atom is <b>mostly empty space</b> with a small, dense, positively charged <b>nucleus</b>."},
+  {t:"q",f:"In the modern (wave-mechanical) model, where are electrons?",b:"In <b>orbitals</b> — regions of space where an electron is most likely found (an electron 'cloud')."},
+  {t:"q",f:"Why is the nucleus positively charged?",b:"Because it contains <b>protons</b> (+) and neutrons (0); there are no electrons in it."}
+ ]},
+ {sym:"Pt",name:"Periodic Table",cards:[
+  {t:"q",f:"How is the modern periodic table arranged?",b:"By <b>increasing atomic number</b> (number of protons)."},
+  {t:"d",f:"Group / family",b:"A <b>vertical column</b>. Elements share the same number of valence electrons and have similar properties."},
+  {t:"d",f:"Period",b:"A <b>horizontal row</b>. Elements have the same number of occupied electron shells."},
+  {t:"d",f:"Alkali metals (Group 1)",b:"The <b>most reactive metals</b>. 1 valence electron; form +1 ions."},
+  {t:"d",f:"Halogens (Group 17)",b:"The <b>most reactive nonmetals</b>. 7 valence electrons; form &minus;1 ions."},
+  {t:"d",f:"Noble gases (Group 18)",b:"<b>Full valence shell</b> — extremely stable and unreactive."},
+  {t:"q",f:"Properties of metals?",b:"Lose electrons to form <b>+ ions</b>; shiny (luster); malleable & ductile; good conductors of heat and electricity."},
+  {t:"q",f:"Properties of nonmetals?",b:"Gain electrons to form <b>&minus; ions</b>; brittle as solids; dull; poor conductors."},
+  {t:"d",f:"Metalloids",b:"Elements along the 'staircase' (B, Si, Ge, As, Sb, Te) with properties of <b>both</b> metals and nonmetals."},
+  {t:"q",f:"Atomic radius trend across a period?",b:"<b>Decreases</b> left &rarr; right (more protons pull the electrons in tighter)."},
+  {t:"q",f:"Atomic radius trend down a group?",b:"<b>Increases</b> (each period adds another electron shell)."},
+  {t:"d",f:"Ionization energy",b:"The energy needed to <b>remove an electron</b>. Increases left &rarr; right; decreases down a group."},
+  {t:"d",f:"Electronegativity",b:"An atom's <b>attraction for shared electrons</b> in a bond. Increases left &rarr; right; decreases down a group (F is highest)."},
+  {t:"q",f:"How does size change when an atom forms a positive ion?",b:"It gets <b>smaller</b> — it loses an entire electron shell."},
+  {t:"q",f:"How does size change when an atom forms a negative ion?",b:"It gets <b>larger</b> — added electrons increase repulsion."}
+ ]},
+ {sym:"Bo",name:"Bonding",cards:[
+  {t:"q",f:"Why do atoms form chemical bonds?",b:"To reach a <b>stable, full valence shell</b> (octet) like the noble gases."},
+  {t:"q",f:"Is energy absorbed or released when a bond forms?",b:"<b>Released.</b> (Energy must be <b>absorbed</b> to break a bond.)"},
+  {t:"d",f:"Ionic bond",b:"Formed by <b>transferring</b> electrons from a metal to a nonmetal, making oppositely charged ions."},
+  {t:"d",f:"Covalent bond",b:"Formed by <b>sharing</b> electrons between two nonmetals."},
+  {t:"d",f:"Metallic bond",b:"Metal atoms sharing a 'sea' of <b>mobile electrons</b> (explains conductivity and malleability)."},
+  {t:"q",f:"Nonpolar vs. polar covalent bond?",b:"<b>Nonpolar</b> = electrons shared equally (identical atoms). <b>Polar</b> = shared unequally (different electronegativities)."},
+  {t:"q",f:"Name the 7 diatomic elements.",b:"H&#8322;, N&#8322;, O&#8322;, F&#8322;, Cl&#8322;, Br&#8322;, I&#8322; — 'BrINClHOF'. Their bonds are nonpolar covalent."},
+  {t:"q",f:"Why is CO&#8322; nonpolar even with polar bonds?",b:"It's <b>linear and symmetrical</b>, so the bond polarities cancel out."},
+  {t:"q",f:"Why is H&#8322;O polar?",b:"It's <b>bent / asymmetrical</b>, so the polarities don't cancel — one end is slightly negative, the other slightly positive."},
+  {t:"q",f:"When do ionic compounds conduct electricity?",b:"When <b>melted</b> or <b>dissolved in water</b>, so ions can move freely. <b>Not</b> as a solid."},
+  {t:"d",f:"Hydrogen bonding",b:"A strong attraction <b>between molecules</b> where H is bonded to N, O, or F. Gives water its high boiling point."},
+  {t:"q",f:"How do intermolecular forces affect boiling point?",b:"<b>Stronger</b> forces between molecules = more energy to separate them = <b>higher</b> boiling point."},
+  {t:"q",f:"What type of bond is in NaCl?",b:"<b>Ionic</b> — sodium is a metal, chlorine a nonmetal, so electrons transfer."},
+  {t:"q",f:"Properties of ionic compounds?",b:"High melting points, form <b>crystals</b>, and conduct electricity when molten or dissolved."}
+ ]},
+ {sym:"Mo",name:"Formulas, Equations & Moles",cards:[
+  {t:"q",f:"How do you name an ionic compound?",b:"Metal name first, then the nonmetal with an <b>'-ide'</b> ending. NaCl = sodium chloride."},
+  {t:"q",f:"How do you show a transition metal's charge?",b:"With a <b>Roman numeral</b> (Stock system). FeCl&#8323; = iron(III) chloride."},
+  {t:"q",f:"How do you write a formula from ion charges?",b:"<b>Criss-cross</b> the charges as subscripts and reduce to the lowest ratio; total charge = 0."},
+  {t:"q",f:"Formula of calcium chloride? (Ca&sup2;&#8314;, Cl&#8315;)",b:"<b>CaCl&#8322;.</b>"},
+  {t:"d",f:"Polyatomic ion",b:"A charged group of bonded atoms acting as one unit (NO&#8323;&#8315;, SO&#8324;&sup2;&#8315;, OH&#8315;, NH&#8324;&#8314;). Found on <b>Table E</b>."},
+  {t:"q",f:"Why do you balance an equation?",b:"To obey the <b>law of conservation of mass</b> — atoms aren't created or destroyed."},
+  {t:"q",f:"When balancing, what can you change?",b:"Only the <b>coefficients</b> (big numbers in front). <b>Never</b> change a subscript."},
+  {t:"d",f:"Synthesis reaction",b:"Two or more substances combine into one product: <b>A + B &rarr; AB</b>."},
+  {t:"d",f:"Single-replacement reaction",b:"One element replaces another in a compound: <b>A + BC &rarr; AC + B</b>."},
+  {t:"d",f:"Double-replacement reaction",b:"Two compounds swap partners: <b>AB + CD &rarr; AD + CB</b>."},
+  {t:"d",f:"The mole",b:"<b>6.02 &times; 10&sup2;&sup3;</b> particles (Avogadro's number) of a substance."},
+  {t:"q",f:"How do you find gram-formula (molar) mass?",b:"Add up the <b>atomic masses</b> of every atom in the formula."},
+  {t:"q",f:"Molar mass of H&#8322;O? (H=1, O=16)",b:"<b>18 g</b> (1 + 1 + 16)."},
+  {t:"q",f:"Formula for number of moles?",b:"<b>moles = mass (g) &divide; gram-formula mass.</b>"},
+  {t:"q",f:"How do you find percent composition of an element?",b:"<b>(mass of the element &divide; total formula mass) &times; 100.</b>"}
+ ]},
+ {sym:"Ph",name:"Phases, Gases & Heat",cards:[
+  {t:"q",f:"State the kinetic molecular theory of an ideal gas.",b:"Particles are in <b>constant random motion</b>, have <b>no attractions</b>, take up negligible volume, and collide <b>elastically</b>."},
+  {t:"q",f:"When does a real gas act most ideal?",b:"At <b>high temperature</b> and <b>low pressure</b>."},
+  {t:"q",f:"Which gases behave most ideally?",b:"Small, nonpolar gases — <b>hydrogen (H&#8322;)</b> and <b>helium (He)</b>."},
+  {t:"d",f:"Boyle's law",b:"At constant temperature, pressure and volume are <b>inversely</b> related: P&#8321;V&#8321; = P&#8322;V&#8322;."},
+  {t:"d",f:"Charles's law",b:"At constant pressure, volume and temperature (in Kelvin) are <b>directly</b> related."},
+  {t:"q",f:"How do you convert Celsius to Kelvin?",b:"<b>K = &deg;C + 273.</b>"},
+  {t:"q",f:"What is STP?",b:"Standard temperature & pressure: <b>273 K (0&deg;C)</b> and <b>101.3 kPa (1 atm)</b>. [Table A]"},
+  {t:"d",f:"Sublimation",b:"A solid changing <b>directly into a gas</b> (e.g., dry ice)."},
+  {t:"q",f:"Heating curve — what happens on a flat line?",b:"A <b>phase change</b>. Temperature and kinetic energy stay constant while potential energy changes."},
+  {t:"q",f:"Heating curve — what happens on a sloped line?",b:"Temperature is rising <b>within a single phase</b> (kinetic energy increasing)."},
+  {t:"q",f:"Formula to warm liquid water?",b:"<b>q = mC&Delta;T</b> (C = 4.18 J/g&middot;K). [Tables T & B]"},
+  {t:"q",f:"Formula to melt ice?",b:"<b>q = mH<sub>f</sub></b> (H<sub>f</sub> = 334 J/g)."},
+  {t:"q",f:"Formula to boil water?",b:"<b>q = mH<sub>v</sub></b> (H<sub>v</sub> = 2260 J/g)."},
+  {t:"q",f:"A liquid boils when its vapor pressure equals what?",b:"The <b>atmospheric (external) pressure</b> on it. [Table H]"},
+  {t:"d",f:"Avogadro's hypothesis",b:"Equal volumes of gases at the same temperature and pressure contain <b>equal numbers of molecules</b>."}
+ ]},
+ {sym:"So",name:"Solutions",cards:[
+  {t:"d",f:"Solute",b:"The substance being <b>dissolved</b> (present in the smaller amount)."},
+  {t:"d",f:"Solvent",b:"The substance doing the <b>dissolving</b> (often water — the 'universal solvent')."},
+  {t:"q",f:"What does 'like dissolves like' mean?",b:"Polar solvents dissolve <b>polar/ionic</b> solutes; nonpolar solvents dissolve <b>nonpolar</b> solutes."},
+  {t:"d",f:"Saturated solution",b:"Holds the <b>maximum</b> solute it can at that temperature — a point <b>on</b> the Table G curve."},
+  {t:"d",f:"Unsaturated solution",b:"Holds <b>less</b> than the maximum — <b>below</b> the line on Table G (it can dissolve more)."},
+  {t:"d",f:"Supersaturated solution",b:"Holds <b>more</b> than the maximum — <b>above</b> the line on Table G (unstable)."},
+  {t:"q",f:"How does temperature affect the solubility of most solids?",b:"Solubility <b>increases</b> as temperature increases."},
+  {t:"q",f:"How does temperature affect the solubility of a gas?",b:"Solubility <b>decreases</b> as temperature increases (warm soda goes flat)."},
+  {t:"q",f:"How does pressure affect the solubility of a gas?",b:"<b>Higher pressure increases</b> gas solubility."},
+  {t:"d",f:"Molarity (M)",b:"<b>moles of solute &divide; liters of solution</b> (mol/L). [Table T]"},
+  {t:"d",f:"Electrolyte",b:"A substance that <b>conducts electricity</b> when dissolved in water (ionic compounds and acids)."},
+  {t:"q",f:"How does dissolved solute change water's freezing & boiling points?",b:"It <b>lowers the freezing point</b> and <b>raises the boiling point</b>."},
+  {t:"q",f:"Why does road salt melt ice?",b:"Dissolved salt <b>lowers the freezing point</b> of water, so ice melts below 0&deg;C."}
+ ]},
+ {sym:"Eq",name:"Kinetics & Equilibrium",cards:[
+  {t:"q",f:"List four things that increase reaction rate.",b:"Higher <b>concentration</b>, higher <b>temperature</b>, greater <b>surface area</b>, and adding a <b>catalyst</b>."},
+  {t:"q",f:"State collision theory.",b:"Reactions happen when particles collide with <b>enough energy</b> (activation energy) and the <b>correct orientation</b>."},
+  {t:"d",f:"Activation energy",b:"The <b>minimum energy</b> needed to start a reaction."},
+  {t:"d",f:"Catalyst",b:"Speeds up a reaction by <b>lowering the activation energy</b>. It is not used up and does <b>not</b> change &Delta;H."},
+  {t:"d",f:"Activated complex",b:"The unstable, high-energy arrangement at the <b>peak</b> of a potential-energy diagram."},
+  {t:"q",f:"How do you find &Delta;H from a PE diagram?",b:"<b>&Delta;H = energy of products &minus; energy of reactants.</b>"},
+  {t:"q",f:"What does an exothermic reaction look like on a PE diagram?",b:"Products are <b>lower</b> than reactants; &Delta;H is <b>negative</b>."},
+  {t:"q",f:"What does an endothermic reaction look like on a PE diagram?",b:"Products are <b>higher</b> than reactants; &Delta;H is <b>positive</b>."},
+  {t:"q",f:"Does a catalyst change &Delta;H?",b:"<b>No.</b> It lowers the activation energy (both directions) but reactant and product energies are unchanged."},
+  {t:"d",f:"Chemical equilibrium",b:"When the <b>forward and reverse rates are equal</b>, so concentrations stay constant (closed system)."},
+  {t:"q",f:"State Le Ch&acirc;telier's principle.",b:"When a <b>stress</b> is applied to a system at equilibrium, it <b>shifts to relieve the stress</b>."},
+  {t:"q",f:"Increase the temperature of an equilibrium — which way does it shift?",b:"Toward the <b>endothermic</b> direction (heat acts like a reactant/product)."},
+  {t:"q",f:"Increase the pressure on a gaseous equilibrium — which way?",b:"Toward the side with <b>fewer moles of gas</b>."},
+  {t:"d",f:"Entropy",b:"A measure of <b>disorder / randomness</b>. Gases &gt; liquids &gt; solids."},
+  {t:"q",f:"What conditions favor a spontaneous reaction?",b:"<b>Decreasing energy</b> (exothermic) and <b>increasing entropy</b>."}
+ ]},
+ {sym:"Ac",name:"Acids, Bases & Salts",cards:[
+  {t:"d",f:"Arrhenius acid",b:"A substance that produces <b>H&#8314; (H&#8323;O&#8314;)</b> ions in water."},
+  {t:"d",f:"Arrhenius base",b:"A substance that produces <b>OH&#8315;</b> ions in water."},
+  {t:"q",f:"Properties of acids?",b:"Sour taste, turn litmus <b>red</b>, react with active metals to release <b>H&#8322; gas</b>, pH &lt; 7, electrolytes."},
+  {t:"q",f:"Properties of bases?",b:"Bitter taste, slippery feel, turn litmus <b>blue</b>, pH &gt; 7, electrolytes."},
+  {t:"q",f:"pH of a neutral solution?",b:"<b>7.</b>"},
+  {t:"q",f:"What does a low pH mean?",b:"A <b>high concentration of H&#8314;</b> ions — strongly acidic."},
+  {t:"q",f:"A change of one pH unit equals what change in H&#8314;?",b:"A factor of <b>10</b>. (pH 2 has 10&times; more H&#8314; than pH 3.)"},
+  {t:"d",f:"Neutralization",b:"<b>Acid + base &rarr; salt + water</b> (H&#8314; + OH&#8315; &rarr; H&#8322;O)."},
+  {t:"q",f:"Phenolphthalein color in acid vs. base?",b:"<b>Colorless</b> in acid, <b>pink</b> in base. [Table M]"},
+  {t:"q",f:"Litmus color in acid vs. base?",b:"<b>Red</b> in acid, <b>blue</b> in base."},
+  {t:"d",f:"Titration",b:"Using a solution of <b>known</b> concentration to find the <b>unknown</b> concentration of another."},
+  {t:"q",f:"Titration equation (monoprotic)?",b:"<b>M<sub>A</sub>V<sub>A</sub> = M<sub>B</sub>V<sub>B</sub>.</b> [Table T]"},
+  {t:"q",f:"Why do acids and bases conduct electricity?",b:"They <b>ionize</b> in water to form mobile ions — they're electrolytes."}
+ ]},
+ {sym:"Rx",name:"Redox & Electrochemistry",cards:[
+  {t:"d",f:"Oxidation",b:"The <b>loss</b> of electrons; the oxidation number <b>increases</b>. (LEO / OIL)"},
+  {t:"d",f:"Reduction",b:"The <b>gain</b> of electrons; the oxidation number <b>decreases</b>. (GER / RIG)"},
+  {t:"q",f:"Quick way to remember redox?",b:"'LEO the lion says GER' (Lose Electrons = Oxidation, Gain Electrons = Reduction), or 'OIL RIG.'"},
+  {t:"q",f:"What does the oxidizing agent do?",b:"It gets <b>reduced</b> (gains the electrons), causing the other substance to be oxidized."},
+  {t:"q",f:"What does the reducing agent do?",b:"It gets <b>oxidized</b> (loses electrons), causing the other substance to be reduced."},
+  {t:"q",f:"Oxidation number of an element by itself (O&#8322;, Na)?",b:"<b>Zero.</b>"},
+  {t:"q",f:"Usual oxidation numbers of oxygen and hydrogen?",b:"Oxygen is <b>&minus;2</b>, hydrogen is <b>+1</b> (in most compounds)."},
+  {t:"q",f:"In a redox reaction, electrons lost must equal what?",b:"<b>Electrons gained</b> — they must balance."},
+  {t:"d",f:"Voltaic (galvanic) cell",b:"Uses a <b>spontaneous</b> redox reaction to <b>produce</b> electricity (chemical &rarr; electrical). A battery."},
+  {t:"d",f:"Electrolytic cell",b:"Uses an outside power source to drive a <b>nonspontaneous</b> reaction (electrical &rarr; chemical). Electroplating."},
+  {t:"q",f:"Where do oxidation and reduction happen in any cell?",b:"Oxidation at the <b>Anode</b>, Reduction at the <b>Cathode</b> ('AN OX, RED CAT')."},
+  {t:"q",f:"Which way do electrons flow in a voltaic cell?",b:"From the <b>anode to the cathode</b> through the external wire."},
+  {t:"q",f:"What does the salt bridge do?",b:"Lets ions flow to keep the two half-cells <b>electrically balanced</b> (neutral)."},
+  {t:"q",f:"Will a metal above hydrogen on Table J react with acid?",b:"<b>Yes</b> — metals more active than hydrogen react with acids to release H&#8322; gas."}
+ ]},
+ {sym:"Or",name:"Organic Chemistry",cards:[
+  {t:"q",f:"What element is the basis of all organic compounds?",b:"<b>Carbon</b> — it forms 4 bonds and makes long chains and rings."},
+  {t:"d",f:"Hydrocarbon",b:"A compound made of <b>only carbon and hydrogen</b>."},
+  {t:"d",f:"Alkane",b:"A hydrocarbon with all <b>single bonds</b> (saturated). Formula C<sub>n</sub>H<sub>2n+2</sub>; ends in '-ane'."},
+  {t:"d",f:"Alkene",b:"A hydrocarbon with one <b>double bond</b> (unsaturated). Formula C<sub>n</sub>H<sub>2n</sub>; ends in '-ene'."},
+  {t:"d",f:"Alkyne",b:"A hydrocarbon with one <b>triple bond</b> (unsaturated). Formula C<sub>n</sub>H<sub>2n-2</sub>; ends in '-yne'."},
+  {t:"q",f:"Saturated vs. unsaturated?",b:"<b>Saturated</b> = only single bonds. <b>Unsaturated</b> = contains a double or triple bond."},
+  {t:"d",f:"Isomers",b:"Compounds with the <b>same molecular formula</b> but <b>different structures</b> (and different properties)."},
+  {t:"q",f:"First four alkane prefixes?",b:"<b>meth-</b> (1C), <b>eth-</b> (2C), <b>prop-</b> (3C), <b>but-</b> (4C). [Table P]"},
+  {t:"d",f:"Combustion",b:"A hydrocarbon burns in oxygen to make <b>CO&#8322; + H&#8322;O</b> (and energy)."},
+  {t:"d",f:"Substitution reaction",b:"A halogen <b>replaces a hydrogen</b> on a saturated hydrocarbon (alkane)."},
+  {t:"d",f:"Addition reaction",b:"Atoms are <b>added across the double/triple bond</b> of an unsaturated hydrocarbon."},
+  {t:"d",f:"Esterification",b:"An organic <b>acid + alcohol &rarr; ester + water</b>."},
+  {t:"d",f:"Fermentation",b:"Sugar (glucose) is converted into <b>ethanol + CO&#8322;</b> by yeast/enzymes."},
+  {t:"q",f:"Functional group of an alcohol vs. an organic acid?",b:"Alcohol = <b>&minus;OH</b>; organic acid = <b>&minus;COOH</b>. [Table R]"}
+ ]},
+ {sym:"Nu",name:"Nuclear Chemistry",cards:[
+  {t:"d",f:"Alpha particle (&alpha;)",b:"A <b>helium nucleus</b>, charge +2. <b>Least</b> penetrating (stopped by paper)."},
+  {t:"d",f:"Beta particle (&beta;)",b:"A high-speed <b>electron</b>, charge &minus;1. More penetrating (stopped by aluminum)."},
+  {t:"d",f:"Gamma ray (&gamma;)",b:"High-energy radiation with <b>no mass and no charge</b>. The <b>most</b> penetrating."},
+  {t:"q",f:"What is a positron?",b:"A particle with an electron's mass but a <b>+1 charge</b> (&beta;&#8314;). [Table O]"},
+  {t:"d",f:"Fission",b:"<b>Splitting</b> a large nucleus into smaller ones, releasing huge energy (reactors, atomic bombs)."},
+  {t:"d",f:"Fusion",b:"<b>Combining</b> small nuclei into a larger one, releasing even more energy (the Sun). Needs extreme heat."},
+  {t:"q",f:"How do you balance a nuclear equation?",b:"Make the <b>mass numbers</b> (top) equal on both sides AND the <b>atomic numbers</b> (bottom) equal."},
+  {t:"d",f:"Transmutation",b:"Changing <b>one element into another</b> through a nuclear reaction."},
+  {t:"d",f:"Half-life",b:"The time for <b>half</b> of a radioactive sample to decay. [Table N]"},
+  {t:"q",f:"How do you find the number of half-lives?",b:"<b>Total time elapsed &divide; length of one half-life.</b>"},
+  {t:"q",f:"100 g sample, half-life 6 yrs. How much after 18 yrs?",b:"18 &divide; 6 = 3 half-lives &rarr; 100 &rarr; 50 &rarr; 25 &rarr; <b>12.5 g</b>."},
+  {t:"q",f:"What fraction remains after 4 half-lives?",b:"(&frac12;)&#8308; = <b>1/16</b>."},
+  {t:"q",f:"Name a use of radioisotopes.",b:"Carbon-14 dating, medical tracers/treatment (I-131, Co-60), and generating electricity."}
+ ]}
+];
+
+/* Flatten */
+const ALL=[];
+TOPICS.forEach((t,ti)=>t.cards.forEach(c=>ALL.push({...c,topic:t.name,sym:t.sym,hue:HUES[ti],ti})));
+document.getElementById("grand").textContent=ALL.length;
+document.getElementById("grand2").textContent=ALL.length;
+
+/* ---------- Deck picker ---------- */
+const deckpickEl=document.getElementById("deckpick");
+function addChip(label,count,hue,onclick,id){
+  const b=document.createElement("button");
+  b.className="chip"; b.id=id; b.setAttribute("aria-pressed","false");
+  b.style.setProperty("--h",hue||"#0f9d6b");
+  b.innerHTML=`<span class="dot"></span>${label}<span class="num">${count}</span>`;
+  b.onclick=onclick; deckpickEl.appendChild(b); return b;
+}
+addChip("All cards",ALL.length,"#16302a",()=>selectDeck("all"),"chip-all");
+TOPICS.forEach((t,i)=>addChip(t.name,t.cards.length,HUES[i],()=>selectDeck(i),"chip-"+i));
+
+/* ---------- Study state ---------- */
+let deck=[], marks=[], pos=0, flipped=false, shuffleOn=false, activeDeck="all";
+
+function selectDeck(which){
+  activeDeck=which;
+  [...deckpickEl.children].forEach(c=>c.setAttribute("aria-pressed","false"));
+  document.getElementById(which==="all"?"chip-all":"chip-"+which).setAttribute("aria-pressed","true");
+  const base = which==="all" ? ALL.slice() : ALL.filter(c=>c.ti===which);
+  buildDeck(base);
+}
+function buildDeck(cards){
+  deck=cards.slice();
+  if(shuffleOn) shuffle(deck);
+  marks=new Array(deck.length).fill(null);
+  pos=0; flipped=false;
+  document.getElementById("summary").style.display="none";
+  document.getElementById("bigcard").style.display="block";
+  document.getElementById("navrow").style.display="flex";
+  renderCard();
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+function renderCard(){
+  const card=deck[pos]; if(!card) return;
+  const bc=document.getElementById("bigcard");
+  bc.classList.remove("flipped"); flipped=false;
+  bc.style.setProperty("--h",card.hue);
+  document.getElementById("frontLabel").textContent = card.t==="q" ? "Question" : "Term";
+  document.getElementById("frontTopic").textContent = card.sym+" · "+card.topic;
+  document.getElementById("backTopic").textContent = card.sym+" · "+card.topic;
+  document.getElementById("frontText").innerHTML = card.f;
+  document.getElementById("backText").innerHTML = card.b;
+  document.getElementById("counter").textContent = (pos+1)+" / "+deck.length;
+  document.getElementById("prevbtn").disabled = pos===0;
+  document.getElementById("bar").style.width = ((pos+1)/deck.length*100)+"%";
+  document.getElementById("bar").style.background = card.hue;
+  updateCounts();
+}
+function updateCounts(){
+  const k=marks.filter(m=>m==="known").length;
+  const l=marks.filter(m=>m==="learning").length;
+  document.getElementById("counts").innerHTML=`Knew <b class="k">${k}</b> &nbsp;·&nbsp; Still learning <b class="l">${l}</b>`;
+}
+function flipCard(){
+  const bc=document.getElementById("bigcard");
+  flipped=!flipped; bc.classList.toggle("flipped",flipped);
+}
+function markCard(status){
+  if(!deck.length) return;
+  marks[pos]=status;
+  advance();
+}
+function advance(){
+  if(pos < deck.length-1){ pos++; renderCard(); }
+  else { showSummary(); }
+}
+function nextCard(){ advance(); }
+function prevCard(){ if(pos>0){ pos--; renderCard(); } }
+
+function showSummary(){
+  const k=marks.filter(m=>m==="known").length;
+  const l=marks.filter(m=>m==="learning").length;
+  document.getElementById("bigcard").style.display="none";
+  document.getElementById("navrow").style.display="none";
+  document.getElementById("bar").style.width="100%";
+  const s=document.getElementById("summary");
+  let btns=`<button class="btn primary" onclick="restartDeck()">&#8634; Study all ${deck.length} again</button>`;
+  if(l>0) btns = `<button class="btn primary" onclick="reviewLearning()">Review the ${l} still learning</button>` + btns;
+  s.innerHTML=`<h2>Round complete</h2>
+    <p>${l===0 && k>0 ? "You sorted every card as known — nice work." : "Here's how this round went:"}</p>
+    <div class="sumstats">
+      <div class="sumstat"><span class="v k">${k}</span><span class="lab">knew it</span></div>
+      <div class="sumstat"><span class="v l">${l}</span><span class="lab">still learning</span></div>
+    </div>
+    <div class="sumbtns">${btns}</div>`;
+  s.style.display="flex";
+}
+function reviewLearning(){
+  const subset=deck.filter((c,i)=>marks[i]==="learning");
+  document.getElementById("summary").style.display="none";
+  document.getElementById("bigcard").style.display="block";
+  document.getElementById("navrow").style.display="flex";
+  deck=subset; marks=new Array(deck.length).fill(null); pos=0; renderCard();
+}
+function restartDeck(){ selectDeck(activeDeck); }
+function toggleShuffle(){
+  shuffleOn=!shuffleOn;
+  document.getElementById("shufbtn").setAttribute("aria-pressed",shuffleOn);
+  selectDeck(activeDeck);
+}
+selectDeck("all");
+
+/* ---------- Keyboard ---------- */
+let activeTab="cards";
+document.addEventListener("keydown",e=>{
+  if(window.refOpen) return;
+  if(activeTab!=="cards") return;
+  if(document.getElementById("summary").style.display!=="none") return;
+  if(e.key==="ArrowRight"){ nextCard(); e.preventDefault(); }
+  else if(e.key==="ArrowLeft"){ prevCard(); e.preventDefault(); }
+  else if((e.key===" "||e.key==="Enter")){
+    const tag=document.activeElement?document.activeElement.tagName:"";
+    if(tag!=="BUTTON"){ flipCard(); e.preventDefault(); }
+  }
+});
+
+/* ===================== QUIZ ===================== */
+const QUIZ=[
+ {cat:"Matter",q:"Which of these is a chemical change?",o:["Melting an ice cube","Boiling water into steam","Iron rusting","Crushing a rock into sand"],c:2,w:"Rusting forms a new substance (iron oxide), so it's chemical. Melting, boiling, and crushing are physical."},
+ {cat:"Matter",q:"A sample with a definite composition that can be broken down only by chemical means is best classified as a —",o:["element","compound","heterogeneous mixture","solution"],c:1,w:"A compound is elements chemically bonded in a fixed ratio, broken only by chemical means."},
+ {cat:"Matter",q:"Which technique separates a mixture based on differences in boiling point?",o:["Filtration","Distillation","Using a magnet","Using a sieve"],c:1,w:"Distillation boils and recondenses substances by their different boiling points."},
+ {cat:"Atomic structure",q:"The nucleus of an atom contains —",o:["protons and electrons","protons and neutrons","neutrons and electrons","electrons only"],c:1,w:"The nucleus holds protons (+) and neutrons (0); electrons are outside it."},
+ {cat:"Atomic structure",q:"How many neutrons are in an atom of argon-40 (atomic number 18)?",o:["18","22","40","58"],c:1,w:"Neutrons = mass number &minus; atomic number = 40 &minus; 18 = 22."},
+ {cat:"Atomic structure",q:"Atoms of the same element with different numbers of neutrons are called —",o:["isotopes","ions","isomers","allotropes"],c:0,w:"Isotopes have the same protons but different neutrons, so different mass numbers."},
+ {cat:"Atomic structure",q:"When an electron in an excited atom falls back to the ground state, the atom —",o:["absorbs energy","emits energy as light","gains a proton","loses a neutron"],c:1,w:"Dropping to a lower level releases the energy as light — creating a bright-line spectrum."},
+ {cat:"Periodic table",q:"Across Period 3 from left to right, the atomic radius generally —",o:["decreases","increases","stays the same","doubles"],c:0,w:"More protons are added to the same shell, pulling electrons in tighter, so radius decreases."},
+ {cat:"Periodic table",q:"Elements with the most similar chemical properties are found in the same —",o:["period","group","row","metalloid region"],c:1,w:"Same group = same number of valence electrons = similar chemical behavior."},
+ {cat:"Periodic table",q:"An element that is brittle, a poor conductor, and tends to gain electrons is a —",o:["metal","nonmetal","metalloid","noble gas"],c:1,w:"Those are all nonmetal properties (right side of the table)."},
+ {cat:"Bonding",q:"A bond formed by transferring electrons from a metal to a nonmetal is —",o:["covalent","ionic","metallic","hydrogen"],c:1,w:"Transfer of electrons makes oppositely charged ions held by an ionic bond."},
+ {cat:"Bonding",q:"Which substance contains a nonpolar covalent bond?",o:["NaCl","H&#8322;O","Cl&#8322;","HCl"],c:2,w:"Cl&#8322; is two identical atoms sharing equally — nonpolar covalent. The others are ionic or polar."},
+ {cat:"Bonding",q:"The 'sea of mobile electrons' that lets metals conduct describes —",o:["ionic bonding","covalent bonding","metallic bonding","hydrogen bonding"],c:2,w:"Metallic bonding = metal atoms sharing a pool of mobile electrons."},
+ {cat:"Formulas",q:"What is the correct formula for aluminum oxide? (Al&sup3;&#8314;, O&sup2;&#8315;)",o:["AlO","Al&#8322;O&#8323;","Al&#8323;O&#8322;","AlO&#8323;"],c:1,w:"Criss-cross the charges: Al&#8322;O&#8323;. The +6 and &minus;6 balance."},
+ {cat:"Moles",q:"What is the gram-formula mass of CO&#8322;? (C = 12, O = 16)",o:["28 g","44 g","56 g","12 g"],c:1,w:"12 + (16 &times; 2) = 44 g."},
+ {cat:"Equations",q:"When __H&#8322; + __O&#8322; &rarr; __H&#8322;O is balanced with smallest whole numbers, the coefficient of H&#8322;O is —",o:["1","2","3","4"],c:1,w:"2H&#8322; + O&#8322; &rarr; 2H&#8322;O. H&#8322;O has a coefficient of 2."},
+ {cat:"Reactions",q:"The reaction AB &rarr; A + B is classified as —",o:["synthesis","decomposition","single replacement","double replacement"],c:1,w:"One compound breaking into simpler parts is decomposition."},
+ {cat:"Gases / KMT",q:"According to kinetic molecular theory, the particles of an ideal gas —",o:["are packed closely","strongly attract each other","move in constant, random motion","have a large volume"],c:2,w:"Ideal gas particles are in constant random motion with no attractions and negligible volume."},
+ {cat:"Gas laws",q:"At constant temperature, as the pressure on a gas increases, its volume —",o:["increases","decreases","stays the same","becomes zero"],c:1,w:"Boyle's law: pressure and volume are inversely related at constant temperature."},
+ {cat:"Heat / phases",q:"On a heating curve, the temperature stays constant while the substance is —",o:["warming as a solid","changing phase","warming as a liquid","warming as a gas"],c:1,w:"During a phase change, energy changes the phase (potential energy), not the temperature."},
+ {cat:"Solutions",q:"A solution holding the maximum dissolved solute at a given temperature is —",o:["dilute","unsaturated","saturated","supersaturated"],c:2,w:"Saturated = on the Table G curve. Unsaturated is below; supersaturated is unstably above."},
+ {cat:"Solutions",q:"As temperature increases, the solubility of most solid solutes in water —",o:["increases","decreases","stays the same","becomes zero"],c:0,w:"Most solids dissolve more in hotter water. (Gases do the opposite.)"},
+ {cat:"Kinetics",q:"Adding a catalyst speeds up a reaction by —",o:["raising the activation energy","lowering the activation energy","increasing &Delta;H","adding more product"],c:1,w:"A catalyst gives an alternate pathway with lower activation energy. It doesn't change &Delta;H."},
+ {cat:"Kinetics",q:"In an exothermic reaction, the potential energy of the products vs. reactants is —",o:["higher","lower","equal","zero"],c:1,w:"Exothermic reactions release energy, so products are lower (&Delta;H negative)."},
+ {cat:"Equilibrium",q:"Increasing a reactant's concentration at equilibrium shifts the reaction toward the —",o:["reactants","products","catalyst","container walls"],c:1,w:"Le Ch&acirc;telier: the system shifts away from the added stress, toward the products."},
+ {cat:"Acids & bases",q:"An Arrhenius acid produces which ion as the only positive ion in solution?",o:["OH&#8315;","H&#8314; (H&#8323;O&#8314;)","Na&#8314;","Cl&#8315;"],c:1,w:"An Arrhenius acid releases H&#8314; (hydronium) in water; a base releases OH&#8315;."},
+ {cat:"Acids & bases",q:"A solution with a pH of 3 is —",o:["basic","neutral","acidic","a neutral salt"],c:2,w:"pH below 7 is acidic; 7 is neutral; above 7 is basic."},
+ {cat:"Redox",q:"In a redox reaction, oxidation is the —",o:["gain of electrons","loss of electrons","gain of protons","loss of neutrons"],c:1,w:"Oxidation Is Loss of electrons (OIL RIG / 'LEO'); the oxidation number rises."},
+ {cat:"Organic",q:"The hydrocarbon C&#8322;H&#8326; (ethane) is classified as an —",o:["alkane","alkene","alkyne","alcohol"],c:0,w:"It fits C&#8345;H&#8322;&#8345;&#8322; with only single bonds — a saturated alkane."},
+ {cat:"Nuclear",q:"A sample has a half-life of 4 days. After 12 days, what fraction remains?",o:["1/2","1/4","1/8","1/16"],c:2,w:"12 &divide; 4 = 3 half-lives. 1 &rarr; 1/2 &rarr; 1/4 &rarr; 1/8."}
+];
+
+const quizEl=document.getElementById("quiz");
+QUIZ.forEach((item,i)=>{
+  const L=["A","B","C","D"];
+  const opts=item.o.map((opt,j)=>`<label class="opt" data-i="${j}"><input type="radio" name="q${i}" value="${j}"><span class="ol">${L[j]}</span><span class="otxt">${opt}</span><span class="mark2"></span></label>`).join("");
+  const q=document.createElement("div"); q.className="q"; q.id="q"+i;
+  q.innerHTML=`<div class="qn"><span class="num">${i+1}</span><span class="qtxt">${item.q}<span class="tcat">${item.cat}</span></span></div><div class="opts">${opts}</div><div class="why" id="why${i}"></div>`;
+  quizEl.appendChild(q);
+});
+function gradeQuiz(){
+  let score=0;
+  QUIZ.forEach((item,i)=>{
+    const qbox=document.getElementById("q"+i); qbox.classList.add("graded");
+    const chosen=document.querySelector(`input[name="q${i}"]:checked`);
+    const pick=chosen?parseInt(chosen.value):-1; if(pick===item.c) score++;
+    qbox.querySelectorAll(".opt").forEach(opt=>{
+      const idx=parseInt(opt.dataset.i), mk=opt.querySelector(".mark2");
+      if(idx===item.c){opt.classList.add("is-correct"); mk.textContent="✓ correct";}
+      if(idx===pick && pick!==item.c){opt.classList.add("is-wrong"); mk.textContent="✗ your pick";}
+    });
+    const why=document.getElementById("why"+i);
+    const note = pick===-1 ? `<span class="ans">You left this blank.</span> ` : "";
+    why.innerHTML=`<b>Answer ${["A","B","C","D"][item.c]}.</b> ${note}${item.w}`;
+    why.classList.add("show");
+  });
+  const bar=document.getElementById("scorebar"); bar.classList.remove("hidden");
+  document.getElementById("scorenum").textContent=score+"/30";
+  document.getElementById("scorepct").textContent=Math.round(score/30*100)+"%";
+  let msg;
+  if(score>=27) msg="Outstanding — more than ready. Skim the cards once more and get some sleep.";
+  else if(score>=20) msg="Solid pass range. Review the misses below and you're in great shape.";
+  else if(score>=15) msg="Getting there. Reread the explanations and flip back through those topic decks tonight.";
+  else msg="Don't panic — focus on the explanations below and your weakest decks. A focused hour goes a long way.";
+  document.getElementById("scoremsg").textContent=msg;
+  bar.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function resetQuiz(){
+  document.querySelectorAll('#quiz input[type="radio"]').forEach(r=>r.checked=false);
+  document.querySelectorAll("#quiz .q").forEach(q=>q.classList.remove("graded"));
+  document.querySelectorAll("#quiz .opt").forEach(o=>{o.classList.remove("is-correct","is-wrong");o.querySelector(".mark2").textContent="";});
+  document.querySelectorAll("#quiz .why").forEach(w=>{w.classList.remove("show");w.innerHTML="";});
+  document.getElementById("scorebar").classList.add("hidden");
+  document.getElementById("panel-quiz").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ---------- Tabs ---------- */
+function showTab(which){
+  activeTab=which;
+  const isCards=which==="cards";
+  document.getElementById("panel-cards").classList.toggle("active",isCards);
+  document.getElementById("panel-quiz").classList.toggle("active",!isCards);
+  document.getElementById("tab-cards").setAttribute("aria-selected",isCards);
+  document.getElementById("tab-quiz").setAttribute("aria-selected",!isCards);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ===================== REFERENCE TABLES ===================== */
+window.refOpen=false;
+
+/* [atomicNumber, symbol, name, mass, gridColumn, gridRow, categoryCode] */
+const PT=[
+ [1,"H","Hydrogen","1.008",1,1,"nm"],[2,"He","Helium","4.003",18,1,"ng"],
+ [3,"Li","Lithium","6.94",1,2,"al"],[4,"Be","Beryllium","9.012",2,2,"ae"],[5,"B","Boron","10.81",13,2,"ml"],[6,"C","Carbon","12.011",14,2,"nm"],[7,"N","Nitrogen","14.007",15,2,"nm"],[8,"O","Oxygen","15.999",16,2,"nm"],[9,"F","Fluorine","18.998",17,2,"hl"],[10,"Ne","Neon","20.180",18,2,"ng"],
+ [11,"Na","Sodium","22.990",1,3,"al"],[12,"Mg","Magnesium","24.305",2,3,"ae"],[13,"Al","Aluminum","26.982",13,3,"pm"],[14,"Si","Silicon","28.085",14,3,"ml"],[15,"P","Phosphorus","30.974",15,3,"nm"],[16,"S","Sulfur","32.06",16,3,"nm"],[17,"Cl","Chlorine","35.45",17,3,"hl"],[18,"Ar","Argon","39.95",18,3,"ng"],
+ [19,"K","Potassium","39.098",1,4,"al"],[20,"Ca","Calcium","40.078",2,4,"ae"],[21,"Sc","Scandium","44.956",3,4,"tm"],[22,"Ti","Titanium","47.867",4,4,"tm"],[23,"V","Vanadium","50.942",5,4,"tm"],[24,"Cr","Chromium","51.996",6,4,"tm"],[25,"Mn","Manganese","54.938",7,4,"tm"],[26,"Fe","Iron","55.845",8,4,"tm"],[27,"Co","Cobalt","58.933",9,4,"tm"],[28,"Ni","Nickel","58.693",10,4,"tm"],[29,"Cu","Copper","63.546",11,4,"tm"],[30,"Zn","Zinc","65.38",12,4,"tm"],[31,"Ga","Gallium","69.723",13,4,"pm"],[32,"Ge","Germanium","72.630",14,4,"ml"],[33,"As","Arsenic","74.922",15,4,"ml"],[34,"Se","Selenium","78.971",16,4,"nm"],[35,"Br","Bromine","79.904",17,4,"hl"],[36,"Kr","Krypton","83.798",18,4,"ng"],
+ [37,"Rb","Rubidium","85.468",1,5,"al"],[38,"Sr","Strontium","87.62",2,5,"ae"],[39,"Y","Yttrium","88.906",3,5,"tm"],[40,"Zr","Zirconium","91.224",4,5,"tm"],[41,"Nb","Niobium","92.906",5,5,"tm"],[42,"Mo","Molybdenum","95.95",6,5,"tm"],[43,"Tc","Technetium","(98)",7,5,"tm"],[44,"Ru","Ruthenium","101.07",8,5,"tm"],[45,"Rh","Rhodium","102.906",9,5,"tm"],[46,"Pd","Palladium","106.42",10,5,"tm"],[47,"Ag","Silver","107.868",11,5,"tm"],[48,"Cd","Cadmium","112.414",12,5,"tm"],[49,"In","Indium","114.818",13,5,"pm"],[50,"Sn","Tin","118.710",14,5,"pm"],[51,"Sb","Antimony","121.760",15,5,"ml"],[52,"Te","Tellurium","127.60",16,5,"ml"],[53,"I","Iodine","126.904",17,5,"hl"],[54,"Xe","Xenon","131.293",18,5,"ng"],
+ [55,"Cs","Cesium","132.905",1,6,"al"],[56,"Ba","Barium","137.327",2,6,"ae"],[72,"Hf","Hafnium","178.49",4,6,"tm"],[73,"Ta","Tantalum","180.948",5,6,"tm"],[74,"W","Tungsten","183.84",6,6,"tm"],[75,"Re","Rhenium","186.207",7,6,"tm"],[76,"Os","Osmium","190.23",8,6,"tm"],[77,"Ir","Iridium","192.217",9,6,"tm"],[78,"Pt","Platinum","195.084",10,6,"tm"],[79,"Au","Gold","196.967",11,6,"tm"],[80,"Hg","Mercury","200.592",12,6,"tm"],[81,"Tl","Thallium","204.38",13,6,"pm"],[82,"Pb","Lead","207.2",14,6,"pm"],[83,"Bi","Bismuth","208.980",15,6,"pm"],[84,"Po","Polonium","(209)",16,6,"pm"],[85,"At","Astatine","(210)",17,6,"hl"],[86,"Rn","Radon","(222)",18,6,"ng"],
+ [87,"Fr","Francium","(223)",1,7,"al"],[88,"Ra","Radium","(226)",2,7,"ae"],[104,"Rf","Rutherfordium","(267)",4,7,"tm"],[105,"Db","Dubnium","(268)",5,7,"tm"],[106,"Sg","Seaborgium","(269)",6,7,"tm"],[107,"Bh","Bohrium","(270)",7,7,"tm"],[108,"Hs","Hassium","(269)",8,7,"tm"],[109,"Mt","Meitnerium","(278)",9,7,"tm"],[110,"Ds","Darmstadtium","(281)",10,7,"tm"],[111,"Rg","Roentgenium","(282)",11,7,"tm"],[112,"Cn","Copernicium","(285)",12,7,"tm"],[113,"Nh","Nihonium","(286)",13,7,"pm"],[114,"Fl","Flerovium","(289)",14,7,"pm"],[115,"Mc","Moscovium","(290)",15,7,"pm"],[116,"Lv","Livermorium","(293)",16,7,"pm"],[117,"Ts","Tennessine","(294)",17,7,"hl"],[118,"Og","Oganesson","(294)",18,7,"ng"],
+ [57,"La","Lanthanum","138.905",3,9,"ln"],[58,"Ce","Cerium","140.116",4,9,"ln"],[59,"Pr","Praseodymium","140.908",5,9,"ln"],[60,"Nd","Neodymium","144.242",6,9,"ln"],[61,"Pm","Promethium","(145)",7,9,"ln"],[62,"Sm","Samarium","150.36",8,9,"ln"],[63,"Eu","Europium","151.964",9,9,"ln"],[64,"Gd","Gadolinium","157.25",10,9,"ln"],[65,"Tb","Terbium","158.925",11,9,"ln"],[66,"Dy","Dysprosium","162.500",12,9,"ln"],[67,"Ho","Holmium","164.930",13,9,"ln"],[68,"Er","Erbium","167.259",14,9,"ln"],[69,"Tm","Thulium","168.934",15,9,"ln"],[70,"Yb","Ytterbium","173.045",16,9,"ln"],[71,"Lu","Lutetium","174.967",17,9,"ln"],
+ [89,"Ac","Actinium","(227)",3,10,"an"],[90,"Th","Thorium","232.038",4,10,"an"],[91,"Pa","Protactinium","231.036",5,10,"an"],[92,"U","Uranium","238.029",6,10,"an"],[93,"Np","Neptunium","(237)",7,10,"an"],[94,"Pu","Plutonium","(244)",8,10,"an"],[95,"Am","Americium","(243)",9,10,"an"],[96,"Cm","Curium","(247)",10,10,"an"],[97,"Bk","Berkelium","(247)",11,10,"an"],[98,"Cf","Californium","(251)",12,10,"an"],[99,"Es","Einsteinium","(252)",13,10,"an"],[100,"Fm","Fermium","(257)",14,10,"an"],[101,"Md","Mendelevium","(258)",15,10,"an"],[102,"No","Nobelium","(259)",16,10,"an"],[103,"Lr","Lawrencium","(262)",17,10,"an"]
+];
+const CATNAME={al:"Alkali metal",ae:"Alkaline earth metal",tm:"Transition metal",pm:"Post-transition metal",ml:"Metalloid",nm:"Nonmetal",hl:"Halogen",ng:"Noble gas",ln:"Lanthanide",an:"Actinide"};
+const CATLEGEND=[["al","Alkali metal"],["ae","Alkaline earth"],["tm","Transition metal"],["pm","Post-transition"],["ml","Metalloid"],["nm","Nonmetal"],["hl","Halogen"],["ng","Noble gas"],["ln","Lanthanide"],["an","Actinide"]];
+
+function ptGridHTML(){
+  let c="";
+  PT.forEach(function(e){
+    c+='<button class="el c-'+e[6]+'" style="grid-column:'+e[4]+';grid-row:'+e[5]+'" data-z="'+e[0]+'" onclick="elDetail('+e[0]+')" aria-label="'+e[2]+', atomic number '+e[0]+'"><span class="z">'+e[0]+'</span><span class="s">'+e[1]+'</span><span class="m">'+e[3]+'</span></button>';
+  });
+  c+='<div class="el ph" style="grid-column:3;grid-row:6">57-71</div>';
+  c+='<div class="el ph" style="grid-column:3;grid-row:7">89-103</div>';
+  return c;
+}
+function ptPageHTML(){
+  var legend=CATLEGEND.map(function(c){return '<span><i class="c-'+c[0]+'"></i>'+c[1]+'</span>';}).join("");
+  return '<div class="ptdetail" id="ptDetail"><div class="big">\u25CE</div><div class="info"><b>Tap any element</b> for its name, atomic mass, and family.<br>Cells show atomic number (top) and atomic mass (bottom).</div></div>'
+    +'<div class="ptscroll"><div class="pt">'+ptGridHTML()+'</div></div>'
+    +'<div class="ptlegend">'+legend+'</div>';
+}
+function elDetail(z){
+  var e=PT.find(function(x){return x[0]===z;}); if(!e)return;
+  var sel=document.querySelector(".el.sel"); if(sel)sel.classList.remove("sel");
+  var node=document.querySelector('.el[data-z="'+z+'"]'); if(node)node.classList.add("sel");
+  var where = e[6]==="ln" ? "Lanthanide series · Period 6" : e[6]==="an" ? "Actinide series · Period 7" : "Group "+e[4]+" · Period "+e[5];
+  var d=document.getElementById("ptDetail");
+  if(d) d.innerHTML='<div class="big">'+e[1]+'</div><div class="info"><b>'+e[2]+'</b> · atomic number '+e[0]+'<br>Atomic mass '+e[3]+' · '+CATNAME[e[6]]+'<br>'+where+'</div>';
+}
+
+const REF=[
+ {code:"Table A",name:"Standard Temperature & Pressure",html:`<table class="rt"><tr><th>Name</th><th>Value</th></tr>
+<tr><td>Standard Pressure</td><td class="f">101.3 kPa = 1 atm</td></tr>
+<tr><td>Standard Temperature</td><td class="f">273 K = 0 °C</td></tr></table>
+<p class="refnote">STP is the reference point for gas problems. The temperature here is in <b>kelvin</b> — always convert.</p>`},
+
+ {code:"Table B",name:"Physical Constants for Water",html:`<table class="rt"><tr><th>Constant</th><th>Value</th></tr>
+<tr><td>Heat of Fusion (melt / freeze)</td><td class="f">334 J/g</td></tr>
+<tr><td>Heat of Vaporization (boil / condense)</td><td class="f">2260 J/g</td></tr>
+<tr><td>Specific Heat Capacity of H₂O(ℓ)</td><td class="f">4.18 J/g·K</td></tr></table>
+<p class="refnote">Pairs with Table T: <b>q = mCΔT</b> (warming), <b>q = mH<sub>f</sub></b> (melting), <b>q = mH<sub>v</sub></b> (boiling).</p>`},
+
+ {code:"Table C",name:"Selected Prefixes",html:`<table class="rt"><tr><th>Factor</th><th>Prefix</th><th>Symbol</th></tr>
+<tr><td class="f">10³</td><td>kilo-</td><td class="f">k</td></tr>
+<tr><td class="f">10⁻¹</td><td>deci-</td><td class="f">d</td></tr>
+<tr><td class="f">10⁻²</td><td>centi-</td><td class="f">c</td></tr>
+<tr><td class="f">10⁻³</td><td>milli-</td><td class="f">m</td></tr>
+<tr><td class="f">10⁻⁶</td><td>micro-</td><td class="f">µ</td></tr>
+<tr><td class="f">10⁻⁹</td><td>nano-</td><td class="f">n</td></tr>
+<tr><td class="f">10⁻¹²</td><td>pico-</td><td class="f">p</td></tr></table>`},
+
+ {code:"Table D",name:"Selected Units",html:`<table class="rt"><tr><th>Symbol</th><th>Name</th><th>Quantity</th></tr>
+<tr><td class="f">m</td><td>meter</td><td>length</td></tr>
+<tr><td class="f">g</td><td>gram</td><td>mass</td></tr>
+<tr><td class="f">Pa</td><td>pascal</td><td>pressure</td></tr>
+<tr><td class="f">K</td><td>kelvin</td><td>temperature</td></tr>
+<tr><td class="f">mol</td><td>mole</td><td>amount of substance</td></tr>
+<tr><td class="f">J</td><td>joule</td><td>energy, work, heat</td></tr>
+<tr><td class="f">s</td><td>second</td><td>time</td></tr>
+<tr><td class="f">L</td><td>liter</td><td>volume</td></tr>
+<tr><td class="f">ppm</td><td>parts per million</td><td>concentration</td></tr>
+<tr><td class="f">M</td><td>molarity</td><td>solution concentration</td></tr></table>`},
+
+ {code:"Table E",name:"Selected Polyatomic Ions",html:`<table class="rt"><tr><th>Ion</th><th>Name</th></tr>
+<tr><td class="f">H₃O⁺</td><td>hydronium</td></tr>
+<tr><td class="f">NH₄⁺</td><td>ammonium</td></tr>
+<tr><td class="f">Hg₂²⁺</td><td>mercury(I)</td></tr>
+<tr><td class="f">OH⁻</td><td>hydroxide</td></tr>
+<tr><td class="f">CN⁻</td><td>cyanide</td></tr>
+<tr><td class="f">SCN⁻</td><td>thiocyanate</td></tr>
+<tr><td class="f">NO₂⁻</td><td>nitrite</td></tr>
+<tr><td class="f">NO₃⁻</td><td>nitrate</td></tr>
+<tr><td class="f">CH₃COO⁻ &nbsp;(C₂H₃O₂⁻)</td><td>acetate</td></tr>
+<tr><td class="f">CO₃²⁻</td><td>carbonate</td></tr>
+<tr><td class="f">HCO₃⁻</td><td>hydrogen carbonate</td></tr>
+<tr><td class="f">C₂O₄²⁻</td><td>oxalate</td></tr>
+<tr><td class="f">SO₃²⁻</td><td>sulfite</td></tr>
+<tr><td class="f">SO₄²⁻</td><td>sulfate</td></tr>
+<tr><td class="f">HSO₄⁻</td><td>hydrogen sulfate</td></tr>
+<tr><td class="f">S₂O₃²⁻</td><td>thiosulfate</td></tr>
+<tr><td class="f">PO₄³⁻</td><td>phosphate</td></tr>
+<tr><td class="f">CrO₄²⁻</td><td>chromate</td></tr>
+<tr><td class="f">Cr₂O₇²⁻</td><td>dichromate</td></tr>
+<tr><td class="f">MnO₄⁻</td><td>permanganate</td></tr>
+<tr><td class="f">ClO⁻</td><td>hypochlorite</td></tr>
+<tr><td class="f">ClO₂⁻</td><td>chlorite</td></tr>
+<tr><td class="f">ClO₃⁻</td><td>chlorate</td></tr>
+<tr><td class="f">ClO₄⁻</td><td>perchlorate</td></tr>
+<tr><td class="f">O₂²⁻</td><td>peroxide</td></tr></table>`},
+
+ {code:"Table F",name:"Solubility Guidelines",html:`<div class="reftwocol">
+<div><p class="refsub">Ions that form SOLUBLE compounds</p><ul class="reflist">
+<li><span class="f">Group 1</span> (Li⁺, Na⁺, K⁺…) — no exceptions</li>
+<li><span class="f">NH₄⁺</span> ammonium — no exceptions</li>
+<li><span class="f">NO₃⁻</span> nitrate — no exceptions</li>
+<li><span class="f">ClO₃⁻</span> chlorate — no exceptions</li>
+<li><span class="f">CH₃COO⁻</span> acetate — no exceptions</li>
+<li><span class="f">HCO₃⁻</span> hydrogen carbonate — no exceptions</li>
+<li><span class="f">Cl⁻ Br⁻ I⁻</span> — except with Ag⁺, Pb²⁺, Hg₂²⁺</li>
+<li><span class="f">SO₄²⁻</span> sulfate — except with Ag⁺, Ca²⁺, Sr²⁺, Ba²⁺, Pb²⁺</li></ul></div>
+<div><p class="refsub">Ions that form INSOLUBLE compounds</p><ul class="reflist">
+<li><span class="f">CO₃²⁻</span> carbonate — except Group 1 &amp; NH₄⁺</li>
+<li><span class="f">CrO₄²⁻</span> chromate — except Group 1, Ca²⁺, Mg²⁺, NH₄⁺</li>
+<li><span class="f">PO₄³⁻</span> phosphate — except Group 1 &amp; NH₄⁺</li>
+<li><span class="f">S²⁻</span> sulfide — except Group 1, Group 2, NH₄⁺</li>
+<li><span class="f">OH⁻</span> hydroxide — except Group 1, Ca²⁺, Ba²⁺, Sr²⁺, NH₄⁺</li></ul></div></div>
+<p class="refnote">"Insoluble" means <b>low</b> solubility. The listed exceptions are the ones that <b>do</b> dissolve.</p>`},
+
+ {code:"Table G",name:"Solubility Curves",html:`<svg class="refchart" viewBox="0 0 560 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Solubility curves vs temperature">
+<g stroke="#dfe7ea" stroke-width="1"><line x1="154" y1="30" x2="154" y2="330"/><line x1="248" y1="30" x2="248" y2="330"/><line x1="342" y1="30" x2="342" y2="330"/><line x1="436" y1="30" x2="436" y2="330"/><line x1="60" y1="230" x2="530" y2="230"/><line x1="60" y1="130" x2="530" y2="130"/><line x1="60" y1="30" x2="530" y2="30"/></g>
+<line x1="60" y1="30" x2="60" y2="330" stroke="#16302a" stroke-width="1.5"/><line x1="60" y1="330" x2="530" y2="330" stroke="#16302a" stroke-width="1.5"/>
+<g font-family="IBM Plex Mono, monospace" font-size="10" fill="#4a625c" text-anchor="middle"><text x="60" y="346">0</text><text x="154" y="346">20</text><text x="248" y="346">40</text><text x="342" y="346">60</text><text x="436" y="346">80</text><text x="530" y="346">100</text></g>
+<g font-family="IBM Plex Mono, monospace" font-size="10" fill="#4a625c" text-anchor="end"><text x="54" y="334">0</text><text x="54" y="234">50</text><text x="54" y="134">100</text><text x="54" y="34">150</text></g>
+<text x="295" y="372" font-family="Inter, sans-serif" font-size="11" fill="#16302a" text-anchor="middle">Temperature (°C)</text>
+<text x="16" y="180" font-family="Inter, sans-serif" font-size="11" fill="#16302a" text-anchor="middle" transform="rotate(-90 16 180)">Solubility (g / 100 g H₂O)</text>
+<polyline fill="none" stroke="#e11d48" stroke-width="2.4" points="60,304 154,266 248,202 342,118 436,30"/>
+<polyline fill="none" stroke="#f59e0b" stroke-width="2.4" points="60,272 154,256 248,238 342,220 436,198 530,176"/>
+<polyline fill="none" stroke="#8b5cf6" stroke-width="2.4" points="60,274 154,262 248,250 342,238 436,228 530,218"/>
+<polyline fill="none" stroke="#16a34a" stroke-width="2.4" points="60,324 154,316 248,302 342,282 436,254 530,216"/>
+<polyline fill="none" stroke="#0ea5e9" stroke-width="2.4" points="60,258 154,258 248,256 342,256 436,254 530,252"/>
+<polyline fill="none" stroke="#64748b" stroke-width="2.4" points="60,150 154,218 248,262 342,290 436,308 530,316"/>
+<g font-family="IBM Plex Mono, monospace" font-size="9.5" font-weight="600"><text x="298" y="110" fill="#e11d48">KNO₃</text><text x="443" y="192" fill="#f59e0b">NH₄Cl</text><text x="500" y="212" fill="#8b5cf6">KCl</text><text x="441" y="250" fill="#16a34a">KClO₃</text><text x="497" y="246" fill="#0ea5e9">NaCl</text><text x="158" y="210" fill="#64748b">NH₃ (gas)</text></g></svg>
+<p class="refnote">Representative shapes — most solids dissolve <b>more</b> as temperature rises, while the gas (NH₃) dissolves <b>less</b>. Use the official booklet for exact values on test day.</p>`},
+
+ {code:"Table H",name:"Vapor Pressure of Four Liquids",html:`<svg class="refchart" viewBox="0 0 560 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vapor pressure vs temperature">
+<g stroke="#dfe7ea" stroke-width="1"><line x1="138" y1="30" x2="138" y2="330"/><line x1="217" y1="30" x2="217" y2="330"/><line x1="295" y1="30" x2="295" y2="330"/><line x1="373" y1="30" x2="373" y2="330"/><line x1="452" y1="30" x2="452" y2="330"/><line x1="60" y1="255" x2="530" y2="255"/><line x1="60" y1="105" x2="530" y2="105"/><line x1="60" y1="30" x2="530" y2="30"/></g>
+<line x1="60" y1="30" x2="60" y2="330" stroke="#16302a" stroke-width="1.5"/><line x1="60" y1="330" x2="530" y2="330" stroke="#16302a" stroke-width="1.5"/>
+<line x1="60" y1="178" x2="530" y2="178" stroke="#16302a" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="64" y="173" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#16302a">101.3 kPa — boiling point line</text>
+<g font-family="IBM Plex Mono, monospace" font-size="10" fill="#4a625c" text-anchor="middle"><text x="60" y="346">0</text><text x="138" y="346">20</text><text x="217" y="346">40</text><text x="295" y="346">60</text><text x="373" y="346">80</text><text x="452" y="346">100</text><text x="530" y="346">120</text></g>
+<g font-family="IBM Plex Mono, monospace" font-size="10" fill="#4a625c" text-anchor="end"><text x="54" y="334">0</text><text x="54" y="259">50</text><text x="54" y="184">100</text><text x="54" y="109">150</text><text x="54" y="34">200</text></g>
+<text x="295" y="372" font-family="Inter, sans-serif" font-size="11" fill="#16302a" text-anchor="middle">Temperature (°C)</text>
+<text x="16" y="180" font-family="Inter, sans-serif" font-size="11" fill="#16302a" text-anchor="middle" transform="rotate(-90 16 180)">Vapor pressure (kPa)</text>
+<polyline fill="none" stroke="#e11d48" stroke-width="2.4" points="60,316 138,294 217,246 279,178 330,98 360,40"/>
+<polyline fill="none" stroke="#f59e0b" stroke-width="2.4" points="60,327 138,321 217,303 295,259 369,178 432,90 455,45"/>
+<polyline fill="none" stroke="#0ea5e9" stroke-width="2.4" points="60,329 138,327 217,319 295,300 373,260 452,178 491,116 530,32"/>
+<polyline fill="none" stroke="#16a34a" stroke-width="2.4" points="60,329 217,322 373,285 452,236 522,178 530,168"/>
+<g font-family="IBM Plex Mono, monospace" font-size="9.5" font-weight="600"><text x="300" y="92" fill="#e11d48">propanone</text><text x="398" y="80" fill="#f59e0b">ethanol</text><text x="452" y="108" fill="#0ea5e9">water</text><text x="424" y="208" fill="#16a34a">ethanoic acid</text></g></svg>
+<p class="refnote">A liquid boils where its curve crosses <b>101.3 kPa</b>: propanone ≈ 56 °C, ethanol ≈ 79 °C, water = 100 °C, ethanoic acid ≈ 118 °C. Weaker forces → higher vapor pressure → lower boiling point.</p>`},
+
+ {code:"Table I",name:"Heats of Reaction (ΔH)",html:`<table class="rt"><tr><th>Reaction</th><th>ΔH (kJ)</th></tr>
+<tr><td class="f">CH₄(g) + 2O₂(g) → CO₂(g) + 2H₂O(ℓ)</td><td class="f">−890.4</td></tr>
+<tr><td class="f">C₃H₈(g) + 5O₂(g) → 3CO₂(g) + 4H₂O(ℓ)</td><td class="f">−2219.2</td></tr>
+<tr><td class="f">2C₈H₁₈(ℓ) + 25O₂(g) → 16CO₂(g) + 18H₂O(ℓ)</td><td class="f">−10943</td></tr>
+<tr><td class="f">2CO(g) + O₂(g) → 2CO₂(g)</td><td class="f">−566.0</td></tr>
+<tr><td class="f">C(s) + O₂(g) → CO₂(g)</td><td class="f">−393.5</td></tr>
+<tr><td class="f">2H₂(g) + O₂(g) → 2H₂O(ℓ)</td><td class="f">−571.6</td></tr>
+<tr><td class="f">N₂(g) + O₂(g) → 2NO(g)</td><td class="f">+182.6</td></tr>
+<tr><td class="f">N₂(g) + 2O₂(g) → 2NO₂(g)</td><td class="f">+66.4</td></tr>
+<tr><td class="f">2Na(s) + Cl₂(g) → 2NaCl(s)</td><td class="f">−822.2</td></tr>
+<tr><td class="f">NaOH(s) → Na⁺(aq) + OH⁻(aq)</td><td class="f">−44.5</td></tr>
+<tr><td class="f">NH₄NO₃(s) → NH₄⁺(aq) + NO₃⁻(aq)</td><td class="f">+25.7</td></tr>
+<tr><td class="f">KNO₃(s) → K⁺(aq) + NO₃⁻(aq)</td><td class="f">+34.9</td></tr></table>
+<p class="refnote"><b>Negative ΔH = exothermic</b> (releases heat). <b>Positive ΔH = endothermic</b> (absorbs heat).</p>`},
+
+ {code:"Table J",name:"Activity Series",html:`<div class="reftwocol">
+<div><p class="refsub">Metals — most active at the top ↓</p>
+<p class="refseries">Li · Rb · K · Cs · Ba · Sr · Ca · Na · Mg · Al · Ti · Mn · Zn · Cr · Fe · Co · Ni · Sn · Pb · <b>(H₂)</b> · Cu · Ag · Au</p></div>
+<div><p class="refsub">Nonmetals — most active at the top ↓</p>
+<p class="refseries">F₂ · Cl₂ · Br₂ · I₂</p></div></div>
+<p class="refnote">A more active element replaces a less active one. Metals above <b>(H₂)</b> react with acids to release hydrogen gas.</p>`},
+
+ {code:"Table K",name:"Common Acids",html:`<table class="rt"><tr><th>Formula</th><th>Name</th></tr>
+<tr><td class="f">HCl(aq)</td><td>hydrochloric acid</td></tr>
+<tr><td class="f">HNO₃(aq)</td><td>nitric acid</td></tr>
+<tr><td class="f">H₂SO₄(aq)</td><td>sulfuric acid</td></tr>
+<tr><td class="f">H₃PO₄(aq)</td><td>phosphoric acid</td></tr>
+<tr><td class="f">H₂CO₃(aq)</td><td>carbonic acid</td></tr>
+<tr><td class="f">CH₃COOH(aq)</td><td>ethanoic (acetic) acid</td></tr></table>`},
+
+ {code:"Table L",name:"Common Bases",html:`<table class="rt"><tr><th>Formula</th><th>Name</th></tr>
+<tr><td class="f">NaOH(aq)</td><td>sodium hydroxide</td></tr>
+<tr><td class="f">KOH(aq)</td><td>potassium hydroxide</td></tr>
+<tr><td class="f">Ca(OH)₂(aq)</td><td>calcium hydroxide</td></tr>
+<tr><td class="f">NH₃(aq)</td><td>aqueous ammonia</td></tr></table>`},
+
+ {code:"Table M",name:"Common Acid–Base Indicators",html:`<table class="rt"><tr><th>Indicator</th><th>pH Range</th><th>Color Change</th></tr>
+<tr><td>Methyl orange</td><td class="f">3.1–4.4</td><td>red → yellow</td></tr>
+<tr><td>Bromcresol green</td><td class="f">3.8–5.4</td><td>yellow → blue</td></tr>
+<tr><td>Litmus</td><td class="f">4.5–8.3</td><td>red → blue</td></tr>
+<tr><td>Bromthymol blue</td><td class="f">6.0–7.6</td><td>yellow → blue</td></tr>
+<tr><td>Phenolphthalein</td><td class="f">8.0–9.0</td><td>colorless → pink</td></tr>
+<tr><td>Thymol blue</td><td class="f">8.0–9.6</td><td>yellow → blue</td></tr></table>`},
+
+ {code:"Table N",name:"Selected Radioisotopes",html:`<table class="rt"><tr><th>Nuclide</th><th>Half-Life</th><th>Decay</th><th>Name</th></tr>
+<tr><td class="f">¹⁴C</td><td class="f">5715 y</td><td class="f">β⁻</td><td>carbon-14</td></tr>
+<tr><td class="f">³⁷K</td><td class="f">1.23 s</td><td class="f">β⁺</td><td>potassium-37</td></tr>
+<tr><td class="f">⁴²K</td><td class="f">12.36 h</td><td class="f">β⁻</td><td>potassium-42</td></tr>
+<tr><td class="f">⁶⁰Co</td><td class="f">5.271 y</td><td class="f">β⁻</td><td>cobalt-60</td></tr>
+<tr><td class="f">¹³⁷Cs</td><td class="f">30.2 y</td><td class="f">β⁻</td><td>cesium-137</td></tr>
+<tr><td class="f">³H</td><td class="f">12.31 y</td><td class="f">β⁻</td><td>hydrogen-3</td></tr>
+<tr><td class="f">¹³¹I</td><td class="f">8.021 d</td><td class="f">β⁻</td><td>iodine-131</td></tr>
+<tr><td class="f">³²P</td><td class="f">14.28 d</td><td class="f">β⁻</td><td>phosphorus-32</td></tr>
+<tr><td class="f">²²⁶Ra</td><td class="f">1600 y</td><td class="f">α</td><td>radium-226</td></tr>
+<tr><td class="f">²²²Rn</td><td class="f">3.823 d</td><td class="f">α</td><td>radon-222</td></tr>
+<tr><td class="f">⁹⁰Sr</td><td class="f">28.8 y</td><td class="f">β⁻</td><td>strontium-90</td></tr>
+<tr><td class="f">²³⁵U</td><td class="f">7.04×10⁸ y</td><td class="f">α</td><td>uranium-235</td></tr>
+<tr><td class="f">²³⁸U</td><td class="f">4.47×10⁹ y</td><td class="f">α</td><td>uranium-238</td></tr></table>
+<p class="refnote">Half-life = time for half the sample to decay. Fraction remaining = (½)<sup>(time ÷ half-life)</sup>.</p>`},
+
+ {code:"Table O",name:"Symbols Used in Nuclear Chemistry",html:`<table class="rt"><tr><th>Name</th><th>Notation</th></tr>
+<tr><td>alpha particle</td><td class="f">⁴₂He &nbsp;or&nbsp; α</td></tr>
+<tr><td>beta particle</td><td class="f">⁰₋₁e &nbsp;or&nbsp; β⁻</td></tr>
+<tr><td>positron</td><td class="f">⁰₊₁e &nbsp;or&nbsp; β⁺</td></tr>
+<tr><td>gamma radiation</td><td class="f">⁰₀γ &nbsp;or&nbsp; γ</td></tr>
+<tr><td>neutron</td><td class="f">¹₀n</td></tr>
+<tr><td>proton</td><td class="f">¹₁H &nbsp;or&nbsp; ¹₁p</td></tr></table>
+<p class="refnote">In a balanced nuclear equation, the <b>top numbers</b> (mass) and <b>bottom numbers</b> (charge) each add up the same on both sides.</p>`},
+
+ {code:"Table P",name:"Organic Prefixes",html:`<table class="rt"><tr><th>Prefix</th><th>Number of Carbons</th></tr>
+<tr><td class="f">meth-</td><td>1</td></tr><tr><td class="f">eth-</td><td>2</td></tr><tr><td class="f">prop-</td><td>3</td></tr><tr><td class="f">but-</td><td>4</td></tr><tr><td class="f">pent-</td><td>5</td></tr><tr><td class="f">hex-</td><td>6</td></tr><tr><td class="f">hept-</td><td>7</td></tr><tr><td class="f">oct-</td><td>8</td></tr><tr><td class="f">non-</td><td>9</td></tr><tr><td class="f">dec-</td><td>10</td></tr></table>`},
+
+ {code:"Table Q",name:"Homologous Series of Hydrocarbons",html:`<table class="rt"><tr><th>Series</th><th>General Formula</th><th>Example</th></tr>
+<tr><td>alkanes</td><td class="f">C<sub>n</sub>H<sub>2n+2</sub></td><td class="f">ethane, C₂H₆</td></tr>
+<tr><td>alkenes</td><td class="f">C<sub>n</sub>H<sub>2n</sub></td><td class="f">ethene, C₂H₄</td></tr>
+<tr><td>alkynes</td><td class="f">C<sub>n</sub>H<sub>2n−2</sub></td><td class="f">ethyne, C₂H₂</td></tr></table>
+<p class="refnote">n = number of carbon atoms. Alkanes are <b>saturated</b>; alkenes and alkynes are <b>unsaturated</b>.</p>`},
+
+ {code:"Table R",name:"Organic Functional Groups",html:`<table class="rt"><tr><th>Class</th><th>Functional Group</th></tr>
+<tr><td>halide</td><td class="f">−F, −Cl, −Br, −I</td></tr>
+<tr><td>alcohol</td><td class="f">−OH</td></tr>
+<tr><td>ether</td><td class="f">−O−</td></tr>
+<tr><td>aldehyde</td><td class="f">−CHO</td></tr>
+<tr><td>ketone</td><td class="f">−C(=O)− &nbsp;(carbonyl)</td></tr>
+<tr><td>organic acid</td><td class="f">−COOH</td></tr>
+<tr><td>ester</td><td class="f">−COO−</td></tr>
+<tr><td>amine</td><td class="f">−NH₂</td></tr>
+<tr><td>amide</td><td class="f">−C(=O)NH−</td></tr>
+<tr><td>amino acid</td><td class="f">contains −NH₂ and −COOH</td></tr></table>`},
+
+ {code:"Table S",name:"Properties of Selected Elements",html:`<p class="refh">Electronegativity of common elements</p>
+<table class="rt"><tr><th>Element</th><th>EN</th><th>Element</th><th>EN</th></tr>
+<tr><td class="f">H</td><td>2.2</td><td class="f">Na</td><td>0.9</td></tr>
+<tr><td class="f">Li</td><td>1.0</td><td class="f">Mg</td><td>1.3</td></tr>
+<tr><td class="f">Be</td><td>1.6</td><td class="f">Al</td><td>1.6</td></tr>
+<tr><td class="f">B</td><td>2.0</td><td class="f">Si</td><td>1.9</td></tr>
+<tr><td class="f">C</td><td>2.6</td><td class="f">P</td><td>2.2</td></tr>
+<tr><td class="f">N</td><td>3.0</td><td class="f">S</td><td>2.6</td></tr>
+<tr><td class="f">O</td><td>3.4</td><td class="f">Cl</td><td>3.2</td></tr>
+<tr><td class="f">F</td><td>4.0</td><td class="f">K</td><td>0.8</td></tr></table>
+<p class="refnote">The full Table S also lists each element's first ionization energy, melting & boiling points, density, and atomic radius. <b>F has the highest electronegativity (4.0)</b>; it rises across a period and falls down a group.</p>`},
+
+ {code:"Periodic Table",name:"Periodic Table of the Elements",html:ptPageHTML()}
+];
+
+let refPos=0;
+function renderRef(){
+  var p=REF[refPos];
+  document.getElementById("refCode").textContent=p.code;
+  document.getElementById("refName").textContent=p.name;
+  var body=document.getElementById("refBody");
+  body.innerHTML=p.html; body.scrollTop=0;
+  document.getElementById("refPage").textContent=(refPos+1)+" / "+REF.length;
+  document.getElementById("refPrev").disabled=(refPos===0);
+  document.getElementById("refNext").disabled=(refPos===REF.length-1);
+  document.getElementById("refJump").value=refPos;
+  document.getElementById("refPTBtn").setAttribute("aria-current", p.code==="Periodic Table"?"true":"false");
+}
+function refStep(d){ refPos=Math.max(0,Math.min(REF.length-1,refPos+d)); renderRef(); }
+function refJumpTo(i){ refPos=parseInt(i,10); renderRef(); }
+function gotoPeriodic(){ refPos=REF.findIndex(function(p){return p.code==="Periodic Table";}); renderRef(); }
+function openRef(){
+  var jump=document.getElementById("refJump");
+  if(!jump.options.length){
+    jump.innerHTML=REF.map(function(r,i){return '<option value="'+i+'">'+r.code+(r.code.indexOf("Table")===0?" — "+r.name:"")+'</option>';}).join("");
+  }
+  document.getElementById("refmodal").hidden=false;
+  window.refOpen=true;
+  document.body.style.overflow="hidden";
+  renderRef();
+  var sheet=document.querySelector(".refsheet"); if(sheet)sheet.focus();
+}
+function closeRef(){
+  document.getElementById("refmodal").hidden=true;
+  window.refOpen=false;
+  document.body.style.overflow="";
+  var fab=document.getElementById("reffab"); if(fab)fab.focus();
+}
+document.addEventListener("keydown",function(e){
+  if(!window.refOpen) return;
+  if(e.key==="Escape"){ closeRef(); e.preventDefault(); }
+  else if(e.key==="ArrowRight"){ refStep(1); e.preventDefault(); }
+  else if(e.key==="ArrowLeft"){ refStep(-1); e.preventDefault(); }
+});
+</script>
+</body>
+</html>
